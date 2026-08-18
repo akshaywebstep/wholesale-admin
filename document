@@ -1,0 +1,20 @@
+Tumhara ek wholesale business hai jahan teen tarah ke buyers aate hain:
+
+Customer Group	Kaun hote hain	Discount level
+Retailer	Chhoti dukaan wale, kam quantity lete hain	Sabse kam discount
+Distributor	Medium quantity, regular orders	Medium discount
+Wholesaler	Bulk quantity, bade order	Sabse zyada discount
+Kaam kaise karta hai (product_price_tiers ke sath milke):
+
+Ek hi product ka price alag-alag hoga depending on:
+
+Kaun khareed raha hai (customer_group_id)
+Kitni quantity le raha hai (min_qty / max_qty)
+
+Example — ek Shirt (base price ₹699) ka pricing:
+
+Customer Group	Min Qty	Max Qty	Price
+Retailer	1	9	₹699
+Retailer	10	49	₹650
+Distributor	1	49	₹600
+Wholesaler	50	∞	₹550
