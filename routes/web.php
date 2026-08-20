@@ -12,23 +12,33 @@ use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\Admin\OrderController;
 
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\ShopController;
+use App\Http\Controllers\Frontend\CustomerAuthController;
+use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\Frontend\CustomerRegisterController;
+
 // Direct root test route
 Route::get('/test-direct', function () {
     return 'Direct test route working!';
 });
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 Route::prefix('admin')->name('admin.')->group(function () {
 
-    // Guest routes (login)
-    Route::middleware('guest')->group(function () {
-        Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
-    });
+    // Guest Admin
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
-    // Authenticated routes
+    // Authenticated Admin
     Route::middleware('auth')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:Dashboard,VIEW');
 
         // ===== USERS =====
         Route::get('users', [UserController::class, 'index'])->name('users.index')->middleware('permission:User,VIEW');
@@ -72,7 +82,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('permission:Product,UPDATE');
         Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy')->middleware('permission:Product,DELETE');
 
-        // ===== PRODUCT VARIANTS =====
+        // ===== PRODUCT VARIANTS & MEDIA =====
         Route::get('product-variants', [ProductVariantController::class, 'index'])->name('productVariants.index')->middleware('permission:Product,VIEW');
         Route::get('product-variants/create', [ProductVariantController::class, 'create'])->name('productVariants.create')->middleware('permission:Product,CREATE');
         Route::post('product-variants', [ProductVariantController::class, 'store'])->name('productVariants.store')->middleware('permission:Product,CREATE');
@@ -80,7 +90,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('product-variants/{product_variant}/edit', [ProductVariantController::class, 'edit'])->name('productVariants.edit')->middleware('permission:Product,UPDATE');
         Route::put('product-variants/{product_variant}', [ProductVariantController::class, 'update'])->name('productVariants.update')->middleware('permission:Product,UPDATE');
         Route::delete('product-variants/{product_variant}', [ProductVariantController::class, 'destroy'])->name('productVariants.destroy')->middleware('permission:Product,DELETE');
-
 
         Route::post('products/{product}/variants', [ProductController::class, 'storeVariant'])->name('products.variants.store')->middleware('permission:Product,CREATE');
         Route::delete('product-variants-item/{variant}', [ProductController::class, 'destroyVariant'])->name('products.variants.destroy')->middleware('permission:Product,DELETE');
@@ -109,10 +118,52 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('stock/{stock}', [StockController::class, 'update'])->name('stock.update')->middleware('permission:Stock,UPDATE');
         Route::delete('stock/{stock}', [StockController::class, 'destroy'])->name('stock.destroy')->middleware('permission:Stock,DELETE');
 
-        // ===== ORDERS (Admin Read & Status Management Only) =====
+        // ===== ORDERS =====
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('permission:Order,VIEW');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show')->middleware('permission:Order,VIEW');
         Route::post('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus')->middleware('permission:Order,UPDATE');
         Route::get('orders/{order}/download-invoice', [OrderController::class, 'downloadInvoice'])->name('orders.downloadInvoice')->middleware('permission:Order,VIEW');
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Frontend Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/category/{category}', [ShopController::class, 'category'])->name('shop.category');
+Route::get('/product/{id}', [ShopController::class, 'show'])->name('shop.product');
+Route::get('/product/{id}/quick-view', [ShopController::class, 'quickView'])->name('shop.product.quickView');
+
+// Customer Auth Routes
+Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout')->middleware('auth:customer');
+
+Route::get('/register', [CustomerRegisterController::class, 'showForm'])->name('register');
+Route::post('/register', [CustomerRegisterController::class, 'store'])->name('register.store');
+Route::get('/get-states/{country_id}', [CustomerRegisterController::class, 'getStates'])->name('get.states');
+Route::get('/get-cities/{state_id}', [CustomerRegisterController::class, 'getCities'])->name('get.cities');
+
+// Cart Routes
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/add', [CartController::class, 'add'])->name('add');
+    Route::post('/update', [CartController::class, 'update'])->name('update');
+    Route::post('/remove', [CartController::class, 'remove'])->name('remove');
+    Route::get('/count', [CartController::class, 'count'])->name('count');
+});
+
+// Checkout Routes
+Route::prefix('checkout')->name('checkout.')->middleware('auth:customer')->group(function () {
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/process', [CheckoutController::class, 'process'])->name('process');
+    Route::get('/success/{id}', [CheckoutController::class, 'success'])->name('success');
+});
+
+// Customer Order History
+Route::middleware('auth:customer')->prefix('my-orders')->name('customer.orders.')->group(function () {
+    Route::get('/', [ShopController::class, 'orders'])->name('index');
+    Route::get('/{id}', [ShopController::class, 'orderDetails'])->name('show');
 });

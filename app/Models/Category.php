@@ -22,4 +22,15 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    // Parent + all children ka total product count
+    public function getTotalProductsCountAttribute()
+    {
+        $childIds = $this->children()->pluck('id');
+        $allIds = $childIds->push($this->id);
+
+        return Product::whereIn('category_id', $allIds)
+            ->where('is_active', true)
+            ->count();
+    }
 }

@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Http\Controllers\Frontend;
+
+use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
+
+class ShopController extends Controller
+{
+    public function category(Category $category)
+    {
+        $categoryIds = $category->children()->pluck('id')->push($category->id);
+
+        $products = Product::whereIn('category_id', $categoryIds)
+            ->with('images')
+            ->where('is_active', true)
+            ->paginate(20);
+
+        return view('frontend.shop.category', compact('category', 'products'));
+    }
+
+    public function show($id)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $product = Product::with([
+            'images',
+            'category',
+            'variants',
+            'priceTiers' => function ($query) use ($customer) {
+                if ($customer && $customer->customer_group_id) {
+                    $query->where('customer_group_id', $customer->customer_group_id);
+                }
+            }
+        ])->where('is_active', 1)->findOrFail($id);
+
+        return view('frontend.shop.show', compact('product'));
+    }
+
+    public function quickView($id)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $product = Product::with([
+            'images',
+            'category',
+            'variants',
+            'priceTiers' => function ($query) use ($customer) {
+                if ($customer && $customer->customer_group_id) {
+                    $query->where('customer_group_id', $customer->customer_group_id);
+                }
+            }
+        ])->where('is_active', 1)->findOrFail($id);
+
+        $price = $customer ? $product->priceForUser($customer) : null;
+        $isLoggedIn = Auth::guard('customer')->check();
+
+        return response()->json([
+            'success'      => true,
+            'product'      => $product,
+            'price'        => $price ? number_format($price, 2) : null,
+            'is_logged_in' => $isLoggedIn,
+            'image_url'    => $product->images->isNotEmpty()
+                ? asset('storage/' . $product->images->first()->image_path)
+                : asset('images/product1.png'),
+            'product_url'  => route('shop.product', $product->id),
+            'login_url'    => route('login')
+        ]);
+    }
+
+    /**
+     * Customer Orders List
+     */
+    public function orders()
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $orders = Order::where('user_id', $customer->id)
+            ->with(['items.variant.product.images'])
+            ->latest()
+            ->paginate(10);
+
+        return view('frontend.orders.index', compact('orders'));
+    }
+
+    /**
+     * Customer Single Order Details
+     */
+    public function orderDetails($id)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $order = Order::where('id', $id)
+            ->where('user_id', $customer->id)
+            ->with(['items.variant.product.images'])
+            ->firstOrFail();
+
+        return view('frontend.orders.show', compact('order'));
+    }
+}

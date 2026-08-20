@@ -42,6 +42,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'users', // Agar customer ka alag table/model nahi hai toh 'users' hi rahega
+        ],
     ],
 
     /*

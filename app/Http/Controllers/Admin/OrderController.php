@@ -114,7 +114,7 @@ class OrderController extends Controller
 
     public function downloadInvoice(Order $order)
     {
-        $order->load(['user', 'items.product', 'items.variant', 'invoice']);
+        $order->load(['user', 'warehouse', 'items.product', 'items.variant', 'invoice']);
 
         if (!$order->invoice) {
             return back()->with('error', 'Invoice not generated for this order yet.');

@@ -11,52 +11,66 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        
-        if (Auth::check()) {
+        if (Auth::guard('web')->check()) {
+            if (in_array(Auth::guard('web')->user()->user_type, ['ADMIN', 'STAFF'])) {
             return redirect()->route('admin.dashboard');
         }
+            Auth::guard('web')->logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+        }
+
         return view('admin.auth.login');
     }
 
     public function login(Request $request)
     {
-        //  dd($request->all());
         $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required|string',
         ]);
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::guard('web')->user();
+
+            if (!in_array($user->user_type, ['ADMIN', 'STAFF'])) {
+                Auth::guard('web')->logout();
+                return back()->withErrors([
+                    'email' => 'Access denied. Only Admins and Staff can log in here.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
 
-            // Log the login
             LoginLog::create([
-                'user_id' => Auth::id(),
+                'user_id'    => $user->id,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
-                'action' => 'login',
+                'action'     => 'login',
             ]);
 
             return redirect()->route('admin.dashboard');
         }
 
         return back()->withErrors([
-            'email' => 'Invalid credentials.',
+            'email' => 'Invalid email or password.',
         ])->onlyInput('email');
     }
 
     public function logout(Request $request)
     {
+        if (Auth::guard('web')->check()) {
         LoginLog::create([
-            'user_id' => Auth::id(),
+                'user_id'    => Auth::guard('web')->id(),
             'ip_address' => $request->ip(),
             'user_agent' => $request->userAgent(),
-            'action' => 'logout',
+                'action'     => 'logout',
         ]);
+        }
 
-        Auth::logout();
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -15,17 +15,16 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
-
     public function index(Request $request)
     {
         $user = auth('sanctum')->user();
 
         $paginatedOrders = Order::where('user_id', $user->id)
-            ->with(['items.variant.product'])
+            ->with(['items.variant.product', 'warehouse'])
             ->latest()
             ->paginate($request->get('per_page', 10));
 
-        // Response Data Transformation (Unwanted fields remove karne ke liye)
+        // Response Data Transformation
         $cleanOrders = collect($paginatedOrders->items())->map(function ($order) {
             return [
                 'id'               => $order->id,
@@ -33,17 +32,22 @@ class OrderController extends Controller
                 'status'           => $order->status,
                 'total_amount'     => (float) $order->total_amount,
                 'created_at'       => $order->created_at->format('Y-m-d H:i:s'),
+                'warehouse'        => $order->warehouse ? [
+                    'id'       => $order->warehouse->id,
+                    'name'     => $order->warehouse->name,
+                    'location' => $order->warehouse->location,
+                ] : null,
                 'shipping_address' => $order->shipping_address,
                 'items'            => $order->items->map(function ($item) {
                     return [
-                        'id'            => $item->id,
-                        'product_name'  => $item->variant->product->name ?? null,
-                        'variant_sku'   => $item->variant->variant_sku ?? null,
-                        'size'          => $item->variant->size ?? null,
-                        'color'         => $item->variant->color ?? null,
-                        'quantity'      => $item->quantity,
-                        'price'         => (float) $item->price,
-                        'total'         => (float) ($item->price * $item->quantity),
+                        'id'           => $item->id,
+                        'product_name' => $item->variant->product->name ?? null,
+                        'variant_sku'  => $item->variant->variant_sku ?? null,
+                        'size'         => $item->variant->size ?? null,
+                        'color'        => $item->variant->color ?? null,
+                        'quantity'     => $item->quantity,
+                        'price'        => (float) $item->price,
+                        'total'        => (float) ($item->price * $item->quantity),
                     ];
                 }),
             ];
@@ -65,7 +69,7 @@ class OrderController extends Controller
 
         $order = Order::where('id', $id)
             ->where('user_id', $user->id)
-            ->with(['items.variant.product'])
+            ->with(['items.variant.product', 'warehouse'])
             ->first();
 
         if (!$order) {
@@ -81,6 +85,7 @@ class OrderController extends Controller
             'data'    => $order
         ]);
     }
+
     public function checkout(Request $request)
     {
         // 1. Validation
@@ -111,7 +116,7 @@ class OrderController extends Controller
             ], 422);
         }
 
-        // 3. Fetch Cart Items (All or Selected cart_ids)
+        // 3. Fetch Cart Items
         $cartQuery = Cart::where('user_id', $user->id)
             ->with(['product.priceTiers', 'variant.stocks']);
 
@@ -130,7 +135,7 @@ class OrderController extends Controller
 
         // 4. Stock Validation
         foreach ($cartItems as $item) {
-            $availableStock = $item->variant->stocks->sum('quantity');
+            $availableStock = $item->variant && $item->variant->stocks ? $item->variant->stocks->sum('quantity') : 0;
             if ($availableStock < $item->quantity) {
                 return response()->json([
                     'success' => false,
@@ -146,6 +151,14 @@ class OrderController extends Controller
             $totalAmount = 0;
             $itemsToProcess = [];
             $cartIdsToDelete = [];
+
+            // Variant ke active stock se warehouse_id fetch karein
+            $firstCartItem = $cartItems->first();
+            $availableStock = Stock::where('product_variant_id', $firstCartItem->product_variant_id)
+                ->where('quantity', '>', 0)
+                ->first();
+
+            $warehouseId = $availableStock ? $availableStock->warehouse_id : null;
 
             foreach ($cartItems as $item) {
                 $unitPrice = $item->product->base_price;
@@ -169,10 +182,11 @@ class OrderController extends Controller
                 $cartIdsToDelete[] = $item->id;
             }
 
-            // Save Order Record
+            // Save Order Record (Includes warehouse_id)
             $order = Order::create([
                 'order_number'     => 'ORD-' . strtoupper(Str::random(8)),
                 'user_id'          => $user->id,
+                'warehouse_id'     => $warehouseId,
                 'address_id'       => $address->id,
                 'shipping_address' => [
                     'name'           => $address->name,
@@ -188,7 +202,7 @@ class OrderController extends Controller
                 'status'           => 'PENDING',
             ]);
 
-            // Save Order Items & Deduct Stock
+            // Save Order Items & Deduct Stock from targeted warehouse
             foreach ($itemsToProcess as $itemData) {
                 OrderItem::create([
                     'order_id'           => $order->id,
@@ -197,7 +211,12 @@ class OrderController extends Controller
                     'price'              => $itemData['price'],
                 ]);
 
-                $stockRecord = Stock::where('product_variant_id', $itemData['product_variant_id'])->first();
+                $stockQuery = Stock::where('product_variant_id', $itemData['product_variant_id']);
+                if ($warehouseId) {
+                    $stockQuery->where('warehouse_id', $warehouseId);
+                }
+
+                $stockRecord = $stockQuery->first();
                 if ($stockRecord) {
                     $stockRecord->decrement('quantity', $itemData['quantity']);
                 }
@@ -214,6 +233,7 @@ class OrderController extends Controller
                 'data'    => [
                     'order_id'     => $order->id,
                     'order_number' => $order->order_number,
+                    'warehouse_id' => $order->warehouse_id,
                     'total_amount' => (float) $order->total_amount,
                     'status'       => $order->status,
                     'shipping_to'  => $order->shipping_address,
@@ -230,8 +250,7 @@ class OrderController extends Controller
 
     public function downloadInvoice(Request $request, $id)
     {
-        // Order fetch karein aur confirm karein ki yeh usi user ka order hai
-        $order = Order::with(['user', 'items.product', 'items.variant', 'invoice'])
+        $order = Order::with(['user', 'warehouse', 'items.product', 'items.variant', 'invoice'])
             ->where('user_id', $request->user()->id)
             ->where('id', $id)
             ->first();
@@ -250,7 +269,6 @@ class OrderController extends Controller
             ], 400);
         }
 
-        // PDF View render karke download file Stream/Response return karein
         $pdf = Pdf::loadView('admin.orders.invoice-pdf', compact('order'));
 
         return $pdf->download($order->invoice->invoice_number . '.pdf');

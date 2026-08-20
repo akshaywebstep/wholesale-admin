@@ -96,14 +96,16 @@ class ProductController extends Controller
 
     public function storeImage(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'images' => 'required|array',
-            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
+        $request->validate([
+            'images'   => 'required|array',
+            'images.*' => 'required|file|mimes:jpeg,png,jpg,webp,avif|max:2048',
         ]);
 
+        if ($request->hasFile('images')) {
         foreach ($request->file('images') as $file) {
             $path = $file->store('products', 'public');
             $product->images()->create(['image_path' => $path]);
+        }
         }
 
         return back()->with('success', 'Images uploaded.');

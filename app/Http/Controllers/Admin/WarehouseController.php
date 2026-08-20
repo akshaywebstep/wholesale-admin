@@ -62,7 +62,7 @@ class WarehouseController extends Controller
      */
     public function show(Warehouse $warehouse)
     {
-        $warehouse->load(['stocks.variant.product']);
+        $warehouse->load(['stocks.productVariant.product']);
         return view('admin.warehouses.show', compact('warehouse'));
     }
 

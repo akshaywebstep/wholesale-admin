@@ -13,7 +13,7 @@
         .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .invoice-title { font-size: 20px; font-weight: bold; color: #0f172a; text-transform: uppercase; }
         .address-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
-        .address-box { width: 50%; vertical-align: top; }
+        .address-box { width: 33.33%; vertical-align: top; padding-right: 10px; }
         .table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .table th { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; font-size: 10px; font-weight: bold; text-align: left; text-transform: uppercase; color: #64748b; }
         .table td { border: 1px solid #e2e8f0; padding: 8px; vertical-align: top; }
@@ -41,19 +41,36 @@
 
     <hr style="border: none; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
 
-    <!-- Address Section -->
+    <!-- Address Section: Dispatched From | Billed To | Shipping Address -->
     <table class="address-table">
         <tr>
+            <!-- Warehouse / Origin Location -->
             <td class="address-box">
-                <strong style="font-size: 12px; color: #0f172a;">Billed To:</strong><br>
+                <strong style="font-size: 11px; color: #4338ca; text-transform: uppercase;">Dispatched From:</strong>
+                <div style="margin-top: 4px;">
+                    @if($order->warehouse)
+                        <strong style="color: #0f172a;">{{ $order->warehouse->name }}</strong><br>
+                        {{ $order->warehouse->location }}
+                    @else
+                        <strong style="color: #0f172a;">Carolina Prime Main Hub</strong><br>
+                        Garner, North Carolina
+                    @endif
+                </div>
+            </td>
+
+            <!-- Customer / Billed To -->
+            <td class="address-box">
+                <strong style="font-size: 11px; color: #0f172a; text-transform: uppercase;">Billed To:</strong>
                 <div style="margin-top: 4px;">
                     <strong>{{ $order->user->name ?? 'Guest User' }}</strong><br>
                     Email: {{ $order->user->email ?? 'N/A' }}<br>
                     Phone: {{ $order->user->phone ?? 'N/A' }}
                 </div>
             </td>
+
+            <!-- Delivery / Shipping Address -->
             <td class="address-box">
-                <strong style="font-size: 12px; color: #0f172a;">Shipping Address:</strong><br>
+                <strong style="font-size: 11px; color: #0f172a; text-transform: uppercase;">Shipping Address:</strong>
                 <div style="margin-top: 4px;">
                     @if(is_array($order->shipping_address))
                         <strong>{{ $order->shipping_address['name'] ?? '' }}</strong><br>
@@ -85,12 +102,10 @@
             @foreach($order->items as $item)
             <tr>
                 <td>
-                    <!-- Product Name -->
                     <div class="font-bold" style="color: #0f172a;">
                         {{ $item->product->name ?? ($item->variant->product->name ?? 'N/A') }}
                     </div>
                     
-                    <!-- Variant Details (SKU, Size, Color) -->
                     @if($item->variant)
                         <div class="text-slate-500" style="margin-top: 2px;">
                             SKU: {{ $item->variant->variant_sku ?? 'N/A' }} 

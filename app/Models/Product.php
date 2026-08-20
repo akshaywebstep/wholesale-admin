@@ -39,4 +39,19 @@ class Product extends Model
     {
         return $this->hasManyThrough(Stock::class, ProductVariant::class);
     }
+    public function priceForUser($user = null)
+    {
+        if (!$user) return $this->base_price;
+
+        $tier = $this->priceTiers()
+            ->where(function ($q) use ($user) {
+                $q->where('customer_group_id', $user->customer_group_id)
+                    ->orWhereNull('customer_group_id');
+            })
+            ->where('min_qty', '<=', 1)
+            ->orderByDesc('min_qty')
+            ->first();
+
+        return $tier->price ?? $this->base_price;
+    }
 }

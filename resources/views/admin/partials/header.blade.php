@@ -8,9 +8,9 @@
         <!-- User Info -->
         <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">
-                {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+                {{ strtoupper(substr(auth()->guard('web')->user()->name ?? 'A', 0, 1)) }}
             </div>
-            <span class="text-sm font-semibold text-slate-700">{{ auth()->user()->name ?? 'Admin User' }}</span>
+            <span class="text-sm font-semibold text-slate-700">{{ auth()->guard('web')->user()->name ?? 'Admin User' }}</span>
         </div>
 
         <!-- Divider -->
