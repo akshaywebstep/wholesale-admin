@@ -161,15 +161,7 @@ class OrderController extends Controller
             $warehouseId = $availableStock ? $availableStock->warehouse_id : null;
 
             foreach ($cartItems as $item) {
-                $unitPrice = $item->product->base_price;
-                if ($user->customer_group_id) {
-                    $tier = $item->product->priceTiers
-                        ->where('customer_group_id', $user->customer_group_id)
-                        ->first();
-                    if ($tier) {
-                        $unitPrice = $tier->price;
-                    }
-                }
+                $unitPrice = $item->product->priceForUser($user, $item->quantity);
 
                 $totalAmount += ((float) $unitPrice * $item->quantity);
 

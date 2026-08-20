@@ -47,8 +47,16 @@
                                     {{ $order->status }}
                                 </span>
                             </td>
-                            <td style="padding: 14px 16px; text-align: right;">
-                                <a href="{{ route('customer.orders.show', $order->id) }}" class="btn btn--outline btn--sm" style="padding: 6px 14px; font-size: 13px; text-decoration: none;">
+                            <td style="padding: 14px 16px; text-align: right; white-space: nowrap;">
+                                <a href="{{ route('customer.orders.downloadInvoice', $order->id) }}" class="btn btn--sm" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 13px; text-decoration: none; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px; margin-right: 6px;" title="Download PDF Invoice">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                    <span>Invoice</span>
+                                </a>
+                                <a href="{{ route('customer.orders.show', $order->id) }}" class="btn btn--outline btn--sm" style="padding: 6px 14px; font-size: 13px; text-decoration: none; border-radius: 6px;">
                                     View Details &rarr;
                                 </a>
                             </td>

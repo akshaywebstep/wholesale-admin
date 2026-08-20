@@ -13,11 +13,9 @@ class AuthController extends Controller
     {
         if (Auth::guard('web')->check()) {
             if (in_array(Auth::guard('web')->user()->user_type, ['ADMIN', 'STAFF'])) {
-            return redirect()->route('admin.dashboard');
-        }
+                return redirect()->route('admin.dashboard');
+            }
             Auth::guard('web')->logout();
-            request()->session()->invalidate();
-            request()->session()->regenerateToken();
         }
 
         return view('admin.auth.login');
@@ -62,17 +60,16 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if (Auth::guard('web')->check()) {
-        LoginLog::create([
+            LoginLog::create([
                 'user_id'    => Auth::guard('web')->id(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
                 'action'     => 'logout',
-        ]);
+            ]);
         }
 
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->session()->regenerate();
 
         return redirect()->route('admin.login');
     }

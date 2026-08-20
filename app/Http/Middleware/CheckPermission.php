@@ -27,8 +27,6 @@ class CheckPermission
         }
 
         auth()->guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
 
         return redirect()->route('admin.login')->withErrors([
             'email' => 'Current session does not have admin permissions. Please login with Admin account.'

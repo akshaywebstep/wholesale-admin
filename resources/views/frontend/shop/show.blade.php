@@ -54,8 +54,8 @@
                         <tbody>
                             @foreach($product->priceTiers as $tier)
                             <tr>
-                                <td style="padding: 4px;">{{ $tier->min_qty }} - {{ $tier->max_qty }} units</td>
-                                <td style="padding: 4px;">₹{{ number_format($tier->price, 2) }}</td>
+                                <td style="padding: 4px;">{{ $tier->min_qty }} {{ $tier->max_qty ? '- ' . $tier->max_qty . ' units' : '+ units' }}</td>
+                                <td style="padding: 4px; font-weight: 700; color: #16a34a;">₹{{ number_format($tier->price, 2) }}</td>
                             </tr>
                             @endforeach
                         </tbody>

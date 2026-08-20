@@ -76,12 +76,16 @@ class User extends Authenticatable
 
     public function hasPermission(string $panel, string $module, string $action): bool
     {
+        if ($this->user_type === 'ADMIN') {
+            return true;
+        }
+
         foreach ($this->roles as $role) {
             $has = $role->permissions()
-                ->where('panel', $panel)
+                ->where('panel', strtoupper($panel))
                 ->where('module', $module)
                 ->where('action', $action)
-                ->where('status', 1)
+                ->where('status', 'ACTIVE')
                 ->exists();
 
             if ($has) {

@@ -10,9 +10,19 @@
             <a href="{{ route('customer.orders.index') }}" style="text-decoration: none; color: #64748b; font-size: 14px;">
                 &larr; Back to My Orders
             </a>
-            <span style="background: #f1f5f9; color: #0f172a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
-                {{ $order->status }}
-            </span>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="{{ route('customer.orders.downloadInvoice', $order->id) }}" class="btn btn--sm" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 13px; text-decoration: none; border: 1px solid #cbd5e1; background: #fff; color: #334155; border-radius: 6px;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    <span>Download Invoice</span>
+                </a>
+                <span style="background: #f1f5f9; color: #0f172a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase;">
+                    {{ $order->status }}
+                </span>
+            </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
@@ -37,7 +47,7 @@
                         @foreach($order->items as $item)
                         @php
                             $product = $item->variant->product ?? null;
-                        @endphp
+                        @endphp 
                         <tr style="border-bottom: 1px solid #f1f5f9;">
                             <td style="padding: 12px 0; display: flex; align-items: center; gap: 12px;">
                                 @if($product && $product->images->isNotEmpty())

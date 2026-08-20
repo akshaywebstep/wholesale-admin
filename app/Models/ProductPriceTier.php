@@ -8,7 +8,6 @@ class ProductPriceTier extends Model
 {
     protected $fillable = [
         'product_id',
-        'customer_group_id',
         'min_qty',
         'max_qty',
         'price',
@@ -17,10 +16,5 @@ class ProductPriceTier extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function customerGroup()
-    {
-        return $this->belongsTo(CustomerGroup::class);
     }
 }

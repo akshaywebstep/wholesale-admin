@@ -35,16 +35,8 @@ class CartController extends Controller
             // Check Available Stock for variant
             $variantStock = $variant->stocks->sum('quantity');
 
-            // Calculate Tiered Price for User's Customer Group
-            $unitPrice = $product->base_price;
-            if ($user->customer_group_id) {
-                $tier = $product->priceTiers
-                    ->where('customer_group_id', $user->customer_group_id)
-                    ->first();
-                if ($tier) {
-                    $unitPrice = $tier->price;
-                }
-            }
+            // Calculate Tiered Price based on Cart Quantity
+            $unitPrice = $product->priceForUser($user, $item->quantity);
 
             $itemTotal = (float) $unitPrice * $item->quantity;
             $subtotal += $itemTotal;

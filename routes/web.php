@@ -7,9 +7,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
-use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\Admin\WarehouseController;
-use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\Admin\OrderController;
 
 use App\Http\Controllers\Frontend\HomeController;
@@ -36,7 +34,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
     // Authenticated Admin
-    Route::middleware('auth')->group(function () {
+    Route::middleware('auth:web')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:Dashboard,VIEW');
 
@@ -82,15 +80,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update')->middleware('permission:Product,UPDATE');
         Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy')->middleware('permission:Product,DELETE');
 
-        // ===== PRODUCT VARIANTS & MEDIA =====
-        Route::get('product-variants', [ProductVariantController::class, 'index'])->name('productVariants.index')->middleware('permission:Product,VIEW');
-        Route::get('product-variants/create', [ProductVariantController::class, 'create'])->name('productVariants.create')->middleware('permission:Product,CREATE');
-        Route::post('product-variants', [ProductVariantController::class, 'store'])->name('productVariants.store')->middleware('permission:Product,CREATE');
-        Route::get('product-variants/{product_variant}', [ProductVariantController::class, 'show'])->name('productVariants.show')->middleware('permission:Product,VIEW');
-        Route::get('product-variants/{product_variant}/edit', [ProductVariantController::class, 'edit'])->name('productVariants.edit')->middleware('permission:Product,UPDATE');
-        Route::put('product-variants/{product_variant}', [ProductVariantController::class, 'update'])->name('productVariants.update')->middleware('permission:Product,UPDATE');
-        Route::delete('product-variants/{product_variant}', [ProductVariantController::class, 'destroy'])->name('productVariants.destroy')->middleware('permission:Product,DELETE');
-
+        // ===== PRODUCT SUB-RESOURCES (Nested under Product) =====
         Route::post('products/{product}/variants', [ProductController::class, 'storeVariant'])->name('products.variants.store')->middleware('permission:Product,CREATE');
         Route::delete('product-variants-item/{variant}', [ProductController::class, 'destroyVariant'])->name('products.variants.destroy')->middleware('permission:Product,DELETE');
 
@@ -100,6 +90,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('products/{product}/price-tiers', [ProductController::class, 'storePriceTier'])->name('products.price-tiers.store')->middleware('permission:Product,CREATE');
         Route::delete('product-price-tiers/{priceTier}', [ProductController::class, 'destroyPriceTier'])->name('products.price-tiers.destroy')->middleware('permission:Product,DELETE');
 
+        Route::post('products/{product}/stock', [ProductController::class, 'updateStock'])->name('products.stock.update')->middleware('permission:Product,UPDATE');
+
         // ===== WAREHOUSES =====
         Route::get('warehouses', [WarehouseController::class, 'index'])->name('warehouses.index')->middleware('permission:Warehouse,VIEW');
         Route::get('warehouses/create', [WarehouseController::class, 'create'])->name('warehouses.create')->middleware('permission:Warehouse,CREATE');
@@ -108,15 +100,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('warehouses/{warehouse}/edit', [WarehouseController::class, 'edit'])->name('warehouses.edit')->middleware('permission:Warehouse,UPDATE');
         Route::put('warehouses/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update')->middleware('permission:Warehouse,UPDATE');
         Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy')->middleware('permission:Warehouse,DELETE');
-
-        // ===== STOCK =====
-        Route::get('stock', [StockController::class, 'index'])->name('stock.index')->middleware('permission:Stock,VIEW');
-        Route::get('stock/create', [StockController::class, 'create'])->name('stock.create')->middleware('permission:Stock,CREATE');
-        Route::post('stock', [StockController::class, 'store'])->name('stock.store')->middleware('permission:Stock,CREATE');
-        Route::get('stock/{stock}', [StockController::class, 'show'])->name('stock.show')->middleware('permission:Stock,VIEW');
-        Route::get('stock/{stock}/edit', [StockController::class, 'edit'])->name('stock.edit')->middleware('permission:Stock,UPDATE');
-        Route::put('stock/{stock}', [StockController::class, 'update'])->name('stock.update')->middleware('permission:Stock,UPDATE');
-        Route::delete('stock/{stock}', [StockController::class, 'destroy'])->name('stock.destroy')->middleware('permission:Stock,DELETE');
 
         // ===== ORDERS =====
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('permission:Order,VIEW');
@@ -166,4 +149,5 @@ Route::prefix('checkout')->name('checkout.')->middleware('auth:customer')->group
 Route::middleware('auth:customer')->prefix('my-orders')->name('customer.orders.')->group(function () {
     Route::get('/', [ShopController::class, 'orders'])->name('index');
     Route::get('/{id}', [ShopController::class, 'orderDetails'])->name('show');
+    Route::get('/{id}/download-invoice', [ShopController::class, 'downloadInvoice'])->name('downloadInvoice');
 });

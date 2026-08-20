@@ -29,7 +29,7 @@ class CartController extends Controller
         $total = 0;
         foreach ($cartItems as $item) {
             if ($item->product) {
-                $price = $item->product->priceForUser($customer);
+                $price = $item->product->priceForUser($customer, $item->quantity);
                 $total += $price * $item->quantity;
             }
         }
@@ -119,7 +119,7 @@ class CartController extends Controller
 
         $lineTotal = 0;
         if ($cartItem->product) {
-            $price = $cartItem->product->priceForUser($customer);
+            $price = $cartItem->product->priceForUser($customer, $cartItem->quantity);
             $lineTotal = $price * $cartItem->quantity;
         }
 
@@ -189,7 +189,7 @@ class CartController extends Controller
 
         foreach ($items as $item) {
             if ($item->product) {
-                $price  = $item->product->priceForUser($customer);
+                $price  = $item->product->priceForUser($customer, $item->quantity);
                 $total += $price * $item->quantity;
             }
         }

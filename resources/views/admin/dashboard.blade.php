@@ -115,13 +115,13 @@
             </a>
 
             <!-- Action 3 -->
-            <a href="{{ route('admin.productVariants.index') }}" class="group p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 hover:shadow-sm transition-all flex items-start gap-3">
+            <a href="{{ route('admin.orders.index') }}" class="group p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 hover:shadow-sm transition-all flex items-start gap-3">
                 <div class="p-2 bg-white group-hover:bg-blue-600 text-slate-600 group-hover:text-white rounded-lg transition-colors border border-slate-200/60 shadow-xs">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                 </div>
                 <div>
-                    <h3 class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Configure Variants</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Set sizes, colors, and SKU codes.</p>
+                    <h3 class="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">Manage Orders</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Track and fulfill wholesale orders.</p>
                 </div>
             </a>
 

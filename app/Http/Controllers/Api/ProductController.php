@@ -14,7 +14,6 @@ class ProductController extends Controller
         // 1. User check (Logged in & Active status)
         $user = auth('sanctum')->user();
         $canSeePrice = ($user && $user->status === 'ACTIVE');
-        $userGroupId = $user ? $user->customer_group_id : null;
 
         // 2. Query with relationships
         $query = Product::with(['category.parent', 'images', 'variants.stocks', 'priceTiers'])
@@ -57,14 +56,7 @@ class ProductController extends Controller
                 $totalStock += $variant->stocks->sum('quantity');
             }
 
-            // Price Calculation based on Customer Group Tiers
             $finalPrice = $product->base_price;
-            if ($canSeePrice && $userGroupId) {
-                $tier = $product->priceTiers->where('customer_group_id', $userGroupId)->first();
-                if ($tier) {
-                    $finalPrice = $tier->price;
-                }
-            }
 
             // Image Mapping
             $images = $product->images->map(function ($img) {
@@ -107,6 +99,11 @@ class ProductController extends Controller
                 'stock'       => $totalStock,
                 'in_stock'    => $totalStock > 0,
                 'images'      => $images,
+                'price_tiers' => $product->priceTiers->map(fn($t) => [
+                    'min_qty' => $t->min_qty,
+                    'max_qty' => $t->max_qty,
+                    'price'   => (float) $t->price,
+                ]),
                 'variants'    => $product->variants->map(function ($v) {
                     return [
                         'id'          => $v->id,

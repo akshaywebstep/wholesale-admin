@@ -120,11 +120,7 @@
                             </div>
                             <div>
                                 @php
-                                    $price = $item->product->base_price;
-                                    if ($customer->customer_group_id) {
-                                        $tier = $item->product->priceTiers->where('customer_group_id', $customer->customer_group_id)->first();
-                                        if ($tier) $price = $tier->price;
-                                    }
+                                    $price = $item->product->priceForUser($customer, $item->quantity);
                                 @endphp
                                 ₹{{ number_format($price * $item->quantity, 2) }}
                             </div>

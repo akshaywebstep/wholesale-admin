@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Order;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ShopController extends Controller
 {
@@ -30,11 +32,7 @@ class ShopController extends Controller
             'images',
             'category',
             'variants',
-            'priceTiers' => function ($query) use ($customer) {
-                if ($customer && $customer->customer_group_id) {
-                    $query->where('customer_group_id', $customer->customer_group_id);
-                }
-            }
+            'priceTiers' => fn($q) => $q->orderBy('min_qty', 'asc'),
         ])->where('is_active', 1)->findOrFail($id);
 
         return view('frontend.shop.show', compact('product'));
@@ -48,11 +46,7 @@ class ShopController extends Controller
             'images',
             'category',
             'variants',
-            'priceTiers' => function ($query) use ($customer) {
-                if ($customer && $customer->customer_group_id) {
-                    $query->where('customer_group_id', $customer->customer_group_id);
-                }
-            }
+            'priceTiers' => fn($q) => $q->orderBy('min_qty', 'asc'),
         ])->where('is_active', 1)->findOrFail($id);
 
         $price = $customer ? $product->priceForUser($customer) : null;
@@ -99,5 +93,32 @@ class ShopController extends Controller
             ->firstOrFail();
 
         return view('frontend.orders.show', compact('order'));
+    }
+
+    /**
+     * Download Invoice for Customer Order
+     */
+    public function downloadInvoice($id)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $order = Order::where('id', $id)
+            ->where('user_id', $customer->id)
+            ->with(['user', 'warehouse', 'items.product', 'items.variant.product', 'invoice'])
+            ->firstOrFail();
+
+        // Ensure invoice record exists
+        if (!$order->invoice) {
+            $invoice = Invoice::create([
+                'order_id'       => $order->id,
+                'invoice_number' => 'INV-' . $order->created_at->format('Ymd') . '-' . sprintf('%04d', $order->id),
+                'pdf_path'       => 'invoices/INV-' . $order->id . '.pdf',
+            ]);
+            $order->setRelation('invoice', $invoice);
+        }
+
+        $pdf = Pdf::loadView('admin.orders.invoice-pdf', compact('order'));
+
+        return $pdf->download($order->invoice->invoice_number . '.pdf');
     }
 }

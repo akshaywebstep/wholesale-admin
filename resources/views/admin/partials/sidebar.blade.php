@@ -17,7 +17,7 @@
             </li>
 
             <!-- Users -->
-            @if(auth()->user()->hasPermission('admin', 'User', 'VIEW'))
+            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->hasPermission('ADMIN', 'User', 'VIEW'))
             <li>
                 <a href="{{ route('admin.users.index') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.users.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
@@ -28,7 +28,7 @@
             @endif
 
             <!-- Roles -->
-            @if(auth()->user()->hasPermission('admin', 'Role', 'VIEW'))
+            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->hasPermission('ADMIN', 'Role', 'VIEW'))
             <li>
                 <a href="{{ route('admin.roles.index') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.roles.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
@@ -39,7 +39,7 @@
             @endif
 
             <!-- Categories -->
-            @if(auth()->user()->hasPermission('admin', 'Category', 'VIEW'))
+            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->hasPermission('ADMIN', 'Category', 'VIEW'))
             <li>
                 <a href="{{ route('admin.categories.index') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.categories.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
@@ -50,7 +50,7 @@
             @endif
 
             <!-- Products -->
-            @if(auth()->user()->hasPermission('admin', 'Product', 'VIEW'))
+            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->hasPermission('ADMIN', 'Product', 'VIEW'))
             <li>
                 <a href="{{ route('admin.products.index') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.products.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
@@ -58,18 +58,10 @@
                     Products
                 </a>
             </li>
-
-            <li>
-                <a href="{{ route('admin.productVariants.index') }}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.productVariants.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    Product Variants
-                </a>
-            </li>
             @endif
 
             <!-- Warehouses -->
-            @if(auth()->user()->hasPermission('admin', 'Warehouse', 'VIEW'))
+            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->hasPermission('ADMIN', 'Warehouse', 'VIEW'))
             <li>
                 <a href="{{ route('admin.warehouses.index') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.warehouses.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
@@ -79,19 +71,8 @@
             </li>
             @endif
 
-            <!-- Stock -->
-            @if(auth()->user()->hasPermission('admin', 'Stock', 'VIEW'))
-            <li>
-                <a href="{{ route('admin.stock.index') }}"
-                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.stock.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Stock
-                </a>
-            </li>
-            @endif
-
             <!-- Orders -->
-            @if(auth()->user()->hasPermission('admin', 'Order', 'VIEW'))
+            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->hasPermission('ADMIN', 'Order', 'VIEW'))
             <li>
                 <a href="{{ route('admin.orders.index') }}"
                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white {{ request()->routeIs('admin.orders.*') ? 'bg-blue-600 text-white font-semibold shadow-sm' : 'text-slate-400' }}">

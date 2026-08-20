@@ -34,13 +34,7 @@ class CheckoutController extends Controller
 
         $total = 0;
         foreach ($cartItems as $item) {
-            $price = $item->product->base_price;
-            if ($customer->customer_group_id) {
-                $tier = $item->product->priceTiers
-                    ->where('customer_group_id', $customer->customer_group_id)
-                    ->first();
-                if ($tier) $price = $tier->price;
-            }
+            $price = $item->product->priceForUser($customer, $item->quantity);
             $total += ((float) $price * $item->quantity);
         }
 
@@ -121,11 +115,7 @@ class CheckoutController extends Controller
             $warehouseId = $availableStock ? $availableStock->warehouse_id : null;
 
             foreach ($cartItems as $item) {
-                $unitPrice = $item->product->base_price;
-                if ($customer->customer_group_id) {
-                    $tier = $item->product->priceTiers->where('customer_group_id', $customer->customer_group_id)->first();
-                    if ($tier) $unitPrice = $tier->price;
-                }
+                $unitPrice = $item->product->priceForUser($customer, $item->quantity);
 
                 $totalAmount += ((float)$unitPrice * $item->quantity);
                 $itemsToProcess[] = [
