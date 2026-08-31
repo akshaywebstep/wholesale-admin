@@ -34,7 +34,7 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 14px;">
                 <span style="color: #64748b;">Total Amount:</span>
-                <strong style="color: #1a8917; font-size: 16px;">₹{{ number_format($order->total_amount, 2) }}</strong>
+                <strong style="color: #1a8917; font-size: 16px;">${{ number_format($order->total_amount, 2) }}</strong>
             </div>
 
             <div style="border-top: 1px dashed #cbd5e1; margin-top: 14px; padding-top: 14px; font-size: 13px; color: #475569;">

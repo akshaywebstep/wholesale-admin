@@ -48,6 +48,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy')->middleware('permission:User,DELETE');
         Route::post('users/{user}/approve', [UserController::class, 'approve'])->name('users.approve')->middleware('permission:User,UPDATE');
         Route::post('users/{user}/reject', [UserController::class, 'reject'])->name('users.reject')->middleware('permission:User,UPDATE');
+        Route::post('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus')->middleware('permission:User,UPDATE');
         Route::get('ajax/states/{country}', [UserController::class, 'getStates'])->name('ajax.states');
         Route::get('ajax/cities/{state}', [UserController::class, 'getCities'])->name('ajax.cities');
 
@@ -92,14 +93,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::post('products/{product}/stock', [ProductController::class, 'updateStock'])->name('products.stock.update')->middleware('permission:Product,UPDATE');
 
-        // ===== WAREHOUSES =====
+        // ===== WAREHOUSES (Only Listing, Show, and Edit/Update Active) =====
         Route::get('warehouses', [WarehouseController::class, 'index'])->name('warehouses.index')->middleware('permission:Warehouse,VIEW');
-        Route::get('warehouses/create', [WarehouseController::class, 'create'])->name('warehouses.create')->middleware('permission:Warehouse,CREATE');
-        Route::post('warehouses', [WarehouseController::class, 'store'])->name('warehouses.store')->middleware('permission:Warehouse,CREATE');
+        // Route::get('warehouses/create', [WarehouseController::class, 'create'])->name('warehouses.create')->middleware('permission:Warehouse,CREATE');
+        // Route::post('warehouses', [WarehouseController::class, 'store'])->name('warehouses.store')->middleware('permission:Warehouse,CREATE');
         Route::get('warehouses/{warehouse}', [WarehouseController::class, 'show'])->name('warehouses.show')->middleware('permission:Warehouse,VIEW');
         Route::get('warehouses/{warehouse}/edit', [WarehouseController::class, 'edit'])->name('warehouses.edit')->middleware('permission:Warehouse,UPDATE');
         Route::put('warehouses/{warehouse}', [WarehouseController::class, 'update'])->name('warehouses.update')->middleware('permission:Warehouse,UPDATE');
-        Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy')->middleware('permission:Warehouse,DELETE');
+        // Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy')->middleware('permission:Warehouse,DELETE');
 
         // ===== ORDERS =====
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index')->middleware('permission:Order,VIEW');

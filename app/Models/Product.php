@@ -54,10 +54,33 @@ class Product extends Model
 
     public function getFormattedWeightAttribute(): string
     {
-        if ($this->weight === null) return '';
-        $num = rtrim(rtrim(number_format((float)$this->weight, 3, '.', ''), '0'), '.');
-        $unit = $this->unit ? ($this->unit->short_code ?? $this->unit->name) : '';
-        return $unit ? "{$num} {$unit}" : $num;
+        if ($this->weight === null || (float)$this->weight <= 0) {
+            return '';
+        }
+
+        $w = (float) $this->weight;
+
+        // Check if sales unit is a direct weight/volume measure
+        $unitCode = strtolower($this->unit->short_code ?? '');
+        if (in_array($unitCode, ['kg', 'g', 'gm', 'mg', 'l', 'ml', 'ton', 'q'])) {
+            $num = rtrim(rtrim(number_format($w, 3, '.', ''), '0'), '.');
+            return "{$num} {$unitCode}";
+        }
+
+        // Smart formatting for packaging units (Pack, Box, Piece, Carton, etc.)
+        if ($w < 1) {
+            $grams = round($w * 1000, 1);
+            $gramsStr = rtrim(rtrim(number_format($grams, 1, '.', ''), '0'), '.');
+            $kgStr = rtrim(rtrim(number_format($w, 3, '.', ''), '0'), '.');
+            return "{$gramsStr}g ({$kgStr} kg)";
+        } elseif ($w >= 20 && $w == floor($w)) {
+            // E.g. entered as direct grams like 50, 250, 500
+            $kg = $w / 1000;
+            return "{$w}g ({$kg} kg)";
+        } else {
+            $num = rtrim(rtrim(number_format($w, 2, '.', ''), '0'), '.');
+            return "{$num} kg";
+        }
     }
 
     public function priceForUser($user = null, $quantity = 1)
@@ -72,5 +95,14 @@ class Product extends Model
             ->first();
 
         return $tier ? (float) $tier->price : (float) $this->base_price;
+    }
+
+    public function getFeaturedImageUrlAttribute(): string
+    {
+        $first = $this->images->first();
+        if ($first && $first->image_path && file_exists(storage_path('app/public/' . $first->image_path))) {
+            return asset('storage/' . $first->image_path);
+        }
+        return asset('images/product1.png');
     }
 }

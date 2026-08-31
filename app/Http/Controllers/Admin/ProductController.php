@@ -99,6 +99,13 @@ class ProductController extends Controller
         return view('admin.products.create', compact('categories', 'units'));
     }
 
+    public function show(Product $product)
+    {
+        $product->load(['images', 'category.parent', 'unit', 'variants.stocks.warehouse', 'priceTiers']);
+
+        return view('admin.products.show', compact('product'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

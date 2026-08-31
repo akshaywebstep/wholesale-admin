@@ -10,16 +10,20 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    private function getAuthenticatedUser()
+    {
+        return Auth::guard('customer')->user() ?: Auth::guard('web')->user();
+    }
+
     /**
      * Show the full cart page.
      */
     public function index()
     {
-        if (!Auth::guard('customer')->check()) {
+        $customer = $this->getAuthenticatedUser();
+        if (!$customer) {
             return redirect()->route('login')->with('error', 'Please login to view your cart.');
         }
-
-        $customer = Auth::guard('customer')->user();
 
         $cartItems = Cart::with(['product.images', 'variant'])
             ->where('user_id', $customer->id)
@@ -38,16 +42,20 @@ class CartController extends Controller
     }
 
     /**
-     * Add a product to the cart (AJAX).
+     * Add a product to the cart (AJAX or Form POST).
      */
     public function add(Request $request)
     {
-        if (!Auth::guard('customer')->check()) {
-            return response()->json([
-                'success'  => false,
-                'message'  => 'Please login to add items to your cart.',
-                'redirect' => route('login'),
-            ], 401);
+        $customer = $this->getAuthenticatedUser();
+        if (!$customer) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success'  => false,
+                    'message'  => 'Please login to add items to your cart.',
+                    'redirect' => route('login'),
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'Please login to add items to your cart.');
         }
 
         $request->validate([
@@ -99,7 +107,8 @@ class CartController extends Controller
      */
     public function update(Request $request)
     {
-        if (!Auth::guard('customer')->check()) {
+        $customer = $this->getAuthenticatedUser();
+        if (!$customer) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 401);
         }
 
@@ -107,8 +116,6 @@ class CartController extends Controller
             'cart_id'  => 'required|exists:carts,id',
             'quantity' => 'required|integer|min:1',
         ]);
-
-        $customer = Auth::guard('customer')->user();
 
         $cartItem = Cart::where('id', $request->cart_id)
             ->where('user_id', $customer->id)
@@ -139,15 +146,14 @@ class CartController extends Controller
      */
     public function remove(Request $request)
     {
-        if (!Auth::guard('customer')->check()) {
+        $customer = $this->getAuthenticatedUser();
+        if (!$customer) {
             return response()->json(['success' => false, 'message' => 'Unauthorized.'], 401);
         }
 
         $request->validate([
             'cart_id' => 'required|exists:carts,id',
         ]);
-
-        $customer = Auth::guard('customer')->user();
 
         Cart::where('id', $request->cart_id)
             ->where('user_id', $customer->id)
@@ -168,11 +174,11 @@ class CartController extends Controller
      */
     public function count()
     {
-        if (!Auth::guard('customer')->check()) {
+        $customer = $this->getAuthenticatedUser();
+        if (!$customer) {
             return response()->json(['cart_count' => 0]);
         }
 
-        $customer  = Auth::guard('customer')->user();
         $cartCount = Cart::where('user_id', $customer->id)->count();
 
         return response()->json(['cart_count' => (int) $cartCount]);

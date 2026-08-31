@@ -1,235 +1,357 @@
 @extends('layouts.admin')
 
-@section('title', 'Add User')
+@section('title', 'Create User / Staff')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
-    <!-- Header -->
-    <div class="mb-8 flex items-center justify-between">
+<div class="max-w-7xl mx-auto space-y-6 pb-12">
+
+    <!-- Header Section -->
+    <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Add New User</h1>
-            <p class="text-slate-500 text-sm mt-0.5">Create a new system user or customer account.</p>
+            <a href="{{ route('admin.users.index') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors mb-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to User Directory
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Add New Account</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Create internal staff members with role permissions, or onboard B2B wholesale customer accounts.</p>
         </div>
-        <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-1.5 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all">
-            &larr; Back to Users
-        </a>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.users.index') }}"
+                class="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-all shadow-sm">
+                Cancel
+            </a>
+            <button type="button" onclick="document.getElementById('createUserForm').requestSubmit()"
+                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md shadow-blue-200 active:scale-[0.98] transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Create Account
+            </button>
+        </div>
     </div>
 
-    <!-- Main Card -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <form action="{{ route('admin.users.store') }}" method="POST" class="p-6 sm:p-8 space-y-6">
-            @csrf
+    <!-- Validation Errors Alert -->
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-xs space-y-1 shadow-sm">
+        <div class="flex items-center gap-2 font-bold text-sm">
+            <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Please resolve the following errors:</span>
+        </div>
+        <ul class="list-disc list-inside pl-6 space-y-0.5">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
-            <!-- Section 1: Basic Information -->
-            <div>
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Basic Information</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Full Name *</label>
-                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. John Doe"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">
-                        @error('name') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
+    <form id="createUserForm" action="{{ route('admin.users.store') }}" method="POST">
+        @csrf
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Email Address *</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="john@example.com"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">
-                        @error('email') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Phone Number</label>
-                        <input type="text" name="phone" value="{{ old('phone') }}" placeholder="+1 234 567 890"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">
-                        @error('phone') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
+            <!-- LEFT COLUMN: Account Configuration Forms (8 Cols) -->
+            <div class="lg:col-span-8 space-y-6">
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Password *</label>
-                        <input type="password" name="password" required placeholder="••••••••"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">
-                        @error('password') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                <!-- CARD 1: Account Type Selection -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+                        1. Select Account Type
+                    </h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Option 1: Internal Staff -->
+                        <label class="relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all user-type-card" id="cardStaff">
+                            <input type="radio" name="user_type" value="STAFF" id="typeStaff" {{ old('user_type', 'STAFF') === 'STAFF' ? 'checked' : '' }}
+                                class="mt-1 w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500" onchange="toggleUserTypeForm('STAFF')">
+                            <div class="ml-3">
+                                <span class="block text-sm font-bold text-slate-900">🛡️ Internal Staff Member</span>
+                                <span class="block text-[11px] text-slate-500 mt-0.5">Company employees, warehouse operators, order billing dispatchers, and managers.</span>
+                            </div>
+                        </label>
+
+                        <!-- Option 2: Wholesale Customer -->
+                        <label class="relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all user-type-card" id="cardCustomer">
+                            <input type="radio" name="user_type" value="CUSTOMER" id="typeCustomer" {{ old('user_type') === 'CUSTOMER' ? 'checked' : '' }}
+                                class="mt-1 w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" onchange="toggleUserTypeForm('CUSTOMER')">
+                            <div class="ml-3">
+                                <span class="block text-sm font-bold text-slate-900">🏢 B2B Wholesale Customer</span>
+                                <span class="block text-[11px] text-slate-500 mt-0.5">Smoke shop owners, convenience store retailers, and wholesale buyers.</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
-            </div>
 
-            <hr class="border-slate-100">
+                <!-- CARD 2: Basic Identity & Credentials -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+                        2. Basic Identity & Login Credentials
+                    </h2>
 
-            <!-- Section 2: Access & Account Configuration -->
-            <div>
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Account Type & Status</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">User Type *</label>
-                        <select name="user_type" id="user_type" required onchange="toggleFields()"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all cursor-pointer">
-                            <option value="">Select Account Type</option>
-                            <option value="STAFF" {{ old('user_type') == 'STAFF' ? 'selected' : '' }}>Staff</option>
-                            <option value="CUSTOMER" {{ old('user_type') == 'CUSTOMER' ? 'selected' : '' }}>Customer</option>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Full Name -->
+                        <div>
+                            <label for="inputName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Full Name <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="name" id="inputName" value="{{ old('name') }}" required
+                                placeholder="e.g. Rajesh Kumar"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
+                        </div>
+
+                        <!-- Email Address -->
+                        <div>
+                            <label for="inputEmail" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Official Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" name="email" id="inputEmail" value="{{ old('email') }}" required
+                                placeholder="name@company.com"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div>
+                            <label for="inputPhone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Mobile / Phone Number
+                            </label>
+                            <input type="text" name="phone" id="inputPhone" value="{{ old('phone') }}"
+                                placeholder="e.g. +91 98160 12345"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
+                        </div>
+
+                        <!-- Password -->
+                        <div>
+                            <label for="inputPassword" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Account Password <span class="text-red-500">*</span>
+                            </label>
+                            <input type="password" name="password" id="inputPassword" required minlength="6"
+                                placeholder="Minimum 6 characters"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Status Selection -->
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200/70">
+                        <div>
+                            <span class="text-xs font-bold text-slate-800 block">Initial Account Status</span>
+                            <span class="text-[11px] text-slate-500">Active accounts can login immediately</span>
+                        </div>
+                        <select name="status" id="inputStatus" required
+                            class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold text-slate-800 focus:border-blue-500 outline-none">
+                            <option value="ACTIVE" {{ old('status', 'ACTIVE') === 'ACTIVE' ? 'selected' : '' }}>● Active</option>
+                            <option value="PENDING" {{ old('status') === 'PENDING' ? 'selected' : '' }}>⏳ Pending Verification</option>
+                            <option value="INACTIVE" {{ old('status') === 'INACTIVE' ? 'selected' : '' }}>○ Inactive / Suspended</option>
                         </select>
-                        @error('user_type') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <!-- CARD 3A: Staff Role Assignment (Visible if Staff selected) -->
+                <div id="sectionStaff" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                            3. Role & Module Privileges Assignment
+                        </h2>
+                        <a href="{{ route('admin.roles.index') }}" class="text-[11px] text-blue-600 hover:underline font-semibold">
+                            + Create New Role
+                        </a>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Account Status *</label>
-                        <select name="status" required
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all cursor-pointer">
-                            <option value="ACTIVE" {{ old('status', 'ACTIVE') == 'ACTIVE' ? 'selected' : '' }}>Active</option>
-                            <option value="PENDING" {{ old('status') == 'PENDING' ? 'selected' : '' }}>Pending</option>
-                            <option value="INACTIVE" {{ old('status') == 'INACTIVE' ? 'selected' : '' }}>Inactive</option>
-                            <option value="REJECTED" {{ old('status') == 'REJECTED' ? 'selected' : '' }}>Rejected</option>
-                        </select>
-                        @error('status') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Dynamic STAFF Role Selection -->
-                    <div id="role_field" class="sm:col-span-2" style="display:none;">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Assign Role *</label>
-                        <select name="role_id"
-                            class="w-full px-3.5 py-2.5 bg-purple-50/40 border border-purple-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-purple-500 transition-all cursor-pointer">
-                            <option value="">Select System Role</option>
+                        <label for="inputRole" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Assign Staff Role <span class="text-red-500">*</span>
+                        </label>
+                        <select name="role_id" id="inputRole"
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
+                            <option value="">-- Choose a Role --</option>
                             @foreach($roles as $role)
-                                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                            <option value="{{ $role->id }}" data-name="{{ $role->name }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                {{ $role->name }} ({{ $role->permissions->count() }} Privileges Granted)
+                            </option>
                             @endforeach
                         </select>
-                        @error('role_id') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                        <span class="text-[11px] text-slate-400 mt-1 block">Staff permissions will be automatically enforced based on the selected role.</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Dynamic CUSTOMER Information -->
-            <div id="customer_fields" class="space-y-6 pt-2" style="display:none;">
-                <hr class="border-slate-100">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Customer Details & Location</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Business Name</label>
-                        <input type="text" name="business_name" value="{{ old('business_name') }}" placeholder="Company or Shop Name"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">
-                    </div>
+                <!-- CARD 3B: B2B Customer Business & Tax Info (Visible if Customer selected) -->
+                <div id="sectionCustomer" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5 hidden">
+                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2.5">
+                        3. Wholesale Business & GST Profile
+                    </h2>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">GST Number</label>
-                        <input type="text" name="gst_number" value="{{ old('gst_number') }}" placeholder="22AAAAA0000A1Z5"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">
-                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Business / Store Name -->
+                        <div>
+                            <label for="inputBusiness" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Retail Shop / Business Name
+                            </label>
+                            <input type="text" name="business_name" id="inputBusiness" value="{{ old('business_name') }}"
+                                placeholder="e.g. Apex Smoke & C-Store"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
+                        </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Customer Group *</label>
-                        <select name="customer_group_id" id="customer_group_id"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all cursor-pointer">
-                            <option value="">Select Group</option>
-                            @foreach($customerGroups as $group)
-                                <option value="{{ $group->id }}" {{ old('customer_group_id') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('customer_group_id') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
+                        <!-- GSTIN / Tax ID -->
+                        <div>
+                            <label for="inputGst" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                GST Number / Tax ID
+                            </label>
+                            <input type="text" name="gst_number" id="inputGst" value="{{ old('gst_number') }}"
+                                placeholder="e.g. 02AAAAA0000A1Z5"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
+                        </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Country *</label>
-                        <select name="country_id" id="country_id" onchange="loadStates(this.value)"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all cursor-pointer">
-                            <option value="">Select Country</option>
-                            @foreach($countries as $country)
-                                <option value="{{ $country->id }}" {{ old('country_id') == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('country_id') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
+                        <!-- Customer Tier Group -->
+                        <div class="sm:col-span-2">
+                            <label for="inputGroup" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Wholesale Customer Tier / Group
+                            </label>
+                            <select name="customer_group_id" id="inputGroup"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
+                                <option value="">-- Standard Wholesale Buyer --</option>
+                                @foreach($customerGroups as $group)
+                                <option value="{{ $group->id }}" {{ old('customer_group_id') == $group->id ? 'selected' : '' }}>
+                                    {{ $group->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">State *</label>
-                        <select name="state_id" id="state_id" onchange="loadCities(this.value)"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all cursor-pointer">
-                            <option value="">Select State</option>
-                        </select>
-                        @error('state_id') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">City *</label>
-                        <select name="city_id" id="city_id"
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all cursor-pointer">
-                            <option value="">Select City</option>
-                        </select>
-                        @error('city_id') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide mb-1.5">Full Address *</label>
-                        <textarea name="address" id="address_field" rows="3" placeholder="Street address, building, suite..."
-                            class="w-full px-3.5 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:bg-white focus:border-blue-500 transition-all">{{ old('address') }}</textarea>
-                        @error('address') <p class="text-rose-500 text-xs mt-1 font-medium">{{ $message }}</p> @enderror
+                        <!-- Physical Address -->
+                        <div class="sm:col-span-2">
+                            <label for="inputAddress" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Registered Store Address
+                            </label>
+                            <input type="text" name="address" id="inputAddress" value="{{ old('address') }}"
+                                placeholder="Street address, shop number..."
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            <!-- Form Footer / Actions -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-                <a href="{{ route('admin.users.index') }}" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
-                    Cancel
-                </a>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-all shadow-sm active:scale-[0.98]">
-                    Save User Account
-                </button>
+            <!-- RIGHT COLUMN: Sticky Real-time Profile Card (4 Cols) -->
+            <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
+
+                <!-- Live User Preview Card -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <span class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Live User Profile Card
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-mono">Preview</span>
+                    </div>
+
+                    <!-- Profile Preview Card UI -->
+                    <div class="bg-slate-50 rounded-xl border border-slate-200 p-5 space-y-4 text-center">
+                        <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 font-bold text-xl flex items-center justify-center mx-auto border-2 border-white shadow-sm" id="previewAvatar">
+                            US
+                        </div>
+
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base leading-snug" id="previewName">
+                                User Full Name
+                            </h3>
+                            <span class="text-xs text-slate-500 block" id="previewEmail">user@company.com</span>
+                            <span class="text-[11px] text-slate-400 block mt-0.5" id="previewPhone">+91 00000 00000</span>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-200/80 flex items-center justify-center gap-2">
+                            <span id="previewTypeBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                🛡️ Staff Member
+                            </span>
+                            <span id="previewRoleBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                                Role: Manager
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Direct Submit Button -->
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md shadow-blue-200 active:scale-[0.98] flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Save & Create User
+                    </button>
+                </div>
+
             </div>
-        </form>
-    </div>
+
+        </div>
+    </form>
 </div>
 
+<!-- Dynamic Toggle & Real-time Live Preview Script -->
 <script>
-function toggleFields() {
-    const type = document.getElementById('user_type').value;
-    const isStaff = type === 'STAFF';
-    const isCustomer = type === 'CUSTOMER';
+function toggleUserTypeForm(type) {
+    const sectionStaff = document.getElementById('sectionStaff');
+    const sectionCustomer = document.getElementById('sectionCustomer');
+    const cardStaff = document.getElementById('cardStaff');
+    const cardCustomer = document.getElementById('cardCustomer');
+    const previewTypeBadge = document.getElementById('previewTypeBadge');
+    const previewRoleBadge = document.getElementById('previewRoleBadge');
 
-    document.getElementById('role_field').style.display = isStaff ? 'block' : 'none';
-    document.getElementById('customer_fields').style.display = isCustomer ? 'block' : 'none';
-
-    // Required attribute dynamic toggle
-    document.getElementById('customer_group_id').required = isCustomer;
-    document.getElementById('country_id').required = isCustomer;
-    document.getElementById('state_id').required = isCustomer;
-    document.getElementById('city_id').required = isCustomer;
-    document.getElementById('address_field').required = isCustomer;
-}
-
-async function loadStates(countryId) {
-    const stateSelect = document.getElementById('state_id');
-    const citySelect = document.getElementById('city_id');
-    stateSelect.innerHTML = '<option value="">Select State</option>';
-    citySelect.innerHTML = '<option value="">Select City</option>';
-    if (!countryId) return;
-
-    try {
-        const res = await fetch(`/admin/ajax/states/${countryId}`);
-        const states = await res.json();
-        states.forEach(state => {
-            stateSelect.innerHTML += `<option value="${state.id}">${state.name}</option>`;
-        });
-    } catch (e) {
-        console.error("Failed to load states", e);
+    if (type === 'STAFF') {
+        sectionStaff.classList.remove('hidden');
+        sectionCustomer.classList.add('hidden');
+        cardStaff.className = 'relative flex items-start p-4 rounded-xl border-2 border-blue-500 bg-blue-50/20 cursor-pointer transition-all user-type-card';
+        cardCustomer.className = 'relative flex items-start p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer transition-all user-type-card';
+        previewTypeBadge.textContent = '🛡️ Staff Member';
+        previewTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200';
+        previewRoleBadge.classList.remove('hidden');
+    } else {
+        sectionStaff.classList.add('hidden');
+        sectionCustomer.classList.remove('hidden');
+        cardCustomer.className = 'relative flex items-start p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/20 cursor-pointer transition-all user-type-card';
+        cardStaff.className = 'relative flex items-start p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer transition-all user-type-card';
+        previewTypeBadge.textContent = '🏢 B2B Customer';
+        previewTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+        previewRoleBadge.classList.add('hidden');
     }
 }
 
-async function loadCities(stateId) {
-    const citySelect = document.getElementById('city_id');
-    citySelect.innerHTML = '<option value="">Select City</option>';
-    if (!stateId) return;
+document.addEventListener('DOMContentLoaded', () => {
+    const initialType = document.querySelector('input[name="user_type"]:checked')?.value || 'STAFF';
+    toggleUserTypeForm(initialType);
 
-    try {
-        const res = await fetch(`/admin/ajax/cities/${stateId}`);
-        const cities = await res.json();
-        cities.forEach(city => {
-            citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
-        });
-    } catch (e) {
-        console.error("Failed to load cities", e);
-    }
-}
+    const inputName = document.getElementById('inputName');
+    const inputEmail = document.getElementById('inputEmail');
+    const inputPhone = document.getElementById('inputPhone');
+    const inputRole = document.getElementById('inputRole');
 
-document.addEventListener('DOMContentLoaded', toggleFields);
+    const previewAvatar = document.getElementById('previewAvatar');
+    const previewName = document.getElementById('previewName');
+    const previewEmail = document.getElementById('previewEmail');
+    const previewPhone = document.getElementById('previewPhone');
+    const previewRoleBadge = document.getElementById('previewRoleBadge');
+
+    inputName?.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        previewName.textContent = val || 'User Full Name';
+        previewAvatar.textContent = val ? val.substring(0, 2).toUpperCase() : 'US';
+    });
+
+    inputEmail?.addEventListener('input', (e) => {
+        previewEmail.textContent = e.target.value.trim() || 'user@company.com';
+    });
+
+    inputPhone?.addEventListener('input', (e) => {
+        previewPhone.textContent = e.target.value.trim() || '+91 00000 00000';
+    });
+
+    inputRole?.addEventListener('change', (e) => {
+        const opt = e.target.selectedOptions[0];
+        const roleName = opt ? opt.getAttribute('data-name') : 'No Role';
+        previewRoleBadge.textContent = 'Role: ' + (roleName || 'Unassigned');
+    });
+});
 </script>
 @endsection

@@ -3,161 +3,146 @@
 @section('title', 'Edit Product: ' . $product->name)
 
 @section('content')
-<!-- Header Section -->
-<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <div>
-        <a href="{{ route('admin.products.index') }}"
-            class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors mb-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Catalog
-        </a>
+<!-- Quill Rich Text Editor CDN -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+
+<style>
+    .ql-toolbar.ql-snow {
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        border-color: #e2e8f0;
+        background: #f8fafc;
+    }
+    .ql-container.ql-snow {
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+        border-color: #e2e8f0;
+        background: #ffffff;
+        font-family: inherit;
+        font-size: 0.875rem;
+    }
+    .ql-editor {
+        min-height: 180px;
+    }
+</style>
+
+<div class="max-w-7xl mx-auto space-y-6 pb-12">
+
+    <!-- Top Action Bar & Breadcrumbs -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <a href="{{ route('admin.products.index') }}"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors mb-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Products Catalog
+            </a>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">{{ $product->name }}</h1>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono {{ $product->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
+                    {{ $product->is_active ? 'ACTIVE' : 'INACTIVE' }}
+                </span>
+                <span class="font-mono bg-slate-100 text-slate-700 text-xs px-2.5 py-0.5 rounded-md border border-slate-200">
+                    SKU: {{ $product->sku }}
+                </span>
+            </div>
+        </div>
+
         <div class="flex items-center gap-3">
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">{{ $product->name }}</h1>
-            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono {{ $product->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
-                {{ $product->is_active ? 'ACTIVE' : 'INACTIVE' }}
-            </span>
-            <span class="font-mono bg-slate-100 text-slate-700 text-xs px-2.5 py-0.5 rounded-md border border-slate-200">
-                SKU: {{ $product->sku }}
-            </span>
+            <a href="{{ route('shop.product', $product->id) }}" target="_blank"
+                class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl transition-all shadow-sm">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                View on Storefront
+            </a>
+            <button type="button" onclick="document.getElementById('editGeneralForm').requestSubmit()"
+                class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md shadow-blue-200 active:scale-[0.98] transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Save Changes
+            </button>
         </div>
     </div>
-</div>
 
-<!-- Alerts -->
-@if(session('success'))
-<div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3.5 rounded-2xl mb-6 text-sm flex items-center gap-3 shadow-sm">
-    <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span class="font-medium">{{ session('success') }}</span>
-</div>
-@endif
-
-@if($errors->any())
-<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-2xl mb-6 text-sm flex items-start gap-3 shadow-sm">
-    <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <div class="space-y-1">
-        <span class="font-semibold">Please review the following input errors:</span>
-        <ul class="list-disc list-inside text-xs space-y-0.5 opacity-90">
-            @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+    <!-- Success & Error Alerts -->
+    @if(session('success'))
+    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl text-xs flex items-center gap-3 shadow-sm">
+        <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span class="font-bold text-sm">{{ session('success') }}</span>
     </div>
-</div>
-@endif
+    @endif
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    @if($errors->any())
+    <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl text-xs flex items-start gap-3 shadow-sm">
+        <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="space-y-1">
+            <p class="font-bold text-sm">Please resolve the input issues:</p>
+            <ul class="list-disc list-inside space-y-0.5">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
 
-    <!-- MAIN TABS CONTAINER (8 cols) -->
-    <div class="lg:col-span-8 space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-            <!-- 5 Tab Buttons Header -->
-            <div class="flex border-b border-slate-100 px-2 overflow-x-auto bg-slate-50/50 scrollbar-thin">
-                <!-- Tab 1: Details -->
-                <button type="button"
-                    class="tabBtn active-tab whitespace-nowrap px-4 sm:px-5 py-3.5 text-xs sm:text-sm font-semibold text-blue-600 border-b-2 border-blue-600 flex items-center gap-2 transition-all -mb-px"
-                    data-tab="details">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    1. General Info
-                </button>
+        <!-- LEFT COLUMN: Specifications, Media, Variants, Tiers (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
 
-                <!-- Tab 2: Variants -->
-                <button type="button"
-                    class="tabBtn whitespace-nowrap px-4 sm:px-5 py-3.5 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all -mb-px"
-                    data-tab="variants">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                    </svg>
-                    2. Variants
-                    <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $product->variants->count() }}</span>
-                </button>
-
-                <!-- Tab 3: Inventory / Stock -->
-                <button type="button"
-                    class="tabBtn whitespace-nowrap px-4 sm:px-5 py-3.5 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all -mb-px"
-                    data-tab="stock">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                    </svg>
-                    3. Stock & Inventory
-                    <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $product->total_stock }} pcs</span>
-                </button>
-
-                <!-- Tab 4: Price Tiers (Wholesale) -->
-                <button type="button"
-                    class="tabBtn whitespace-nowrap px-4 sm:px-5 py-3.5 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all -mb-px"
-                    data-tab="pricing">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                    </svg>
-                    4. Wholesale Pricing
-                    <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $product->priceTiers->count() }}</span>
-                </button>
-
-                <!-- Tab 5: Media & Gallery -->
-                <button type="button"
-                    class="tabBtn whitespace-nowrap px-4 sm:px-5 py-3.5 text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent flex items-center gap-2 transition-all -mb-px"
-                    data-tab="media">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    5. Media Gallery
-                    <span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">{{ $product->images->count() }}</span>
-                </button>
-            </div>
-
-            <!-- ============================================== -->
-            <!-- TAB 1: General Information (Edit Form)         -->
-            <!-- ============================================== -->
-            <div class="tabPanel p-6 space-y-5" data-tab-panel="details">
-                <div class="border-b border-slate-100 pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">General Specifications</h3>
-                    <p class="text-xs text-slate-500">Update basic product attributes, category classification, and retail price.</p>
+            <!-- CARD 1: General Specifications Form -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">1</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">General Specifications</h2>
+                    </div>
                 </div>
 
-                <form action="{{ route('admin.products.update', $product) }}" method="POST" class="space-y-4">
+                <form action="{{ route('admin.products.update', $product) }}" method="POST" id="editGeneralForm" class="space-y-4">
                     @csrf
                     @method('PUT')
 
                     <!-- Product Name -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Product Name <span class="text-red-500">*</span>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Product Title <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="name" value="{{ old('name', $product->name) }}" required
-                            class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                        <input type="text" name="name" id="inputName" value="{{ old('name', $product->name) }}" required
+                            class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
                     </div>
 
-                    <!-- SKU & Category Grid -->
+                    <!-- Category & SKU Row -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                 SKU Code <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="sku" value="{{ old('sku', $product->sku) }}" required
-                                class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono text-slate-800 uppercase focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                            <input type="text" name="sku" id="inputSku" value="{{ old('sku', $product->sku) }}" required
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                 Category <span class="text-red-500">*</span>
                             </label>
-                            <select name="category_id" required
-                                class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                            <select name="category_id" id="inputCategory" required
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
                                 @foreach($categories as $parent)
-                                <option value="{{ $parent->id }}" {{ old('category_id', $product->category_id) == $parent->id ? 'selected' : '' }} class="font-bold text-slate-900">
+                                <option value="{{ $parent->id }}" data-name="{{ $parent->name }}" {{ old('category_id', $product->category_id) == $parent->id ? 'selected' : '' }} class="font-bold text-slate-900">
                                     📁 {{ $parent->name }}
                                 </option>
                                 @foreach($parent->children as $child)
-                                <option value="{{ $child->id }}" {{ old('category_id', $product->category_id) == $child->id ? 'selected' : '' }}>
+                                <option value="{{ $child->id }}" data-name="{{ $child->name }}" {{ old('category_id', $product->category_id) == $child->id ? 'selected' : '' }}>
                                     &nbsp;&nbsp;&nbsp;&nbsp;↳ {{ $child->name }}
                                 </option>
                                 @endforeach
@@ -166,33 +151,35 @@
                         </div>
                     </div>
 
-                    <!-- Price & Weight & Unit Grid -->
+                    <!-- Price & Weight & Unit Row -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Base / Retail Price (₹) <span class="text-red-500">*</span>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Base Price ($) <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
-                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
-                                <input type="number" step="0.01" min="0" name="base_price" value="{{ old('base_price', $product->base_price) }}" required
-                                    class="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 text-sm font-semibold text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">$</span>
+                                <input type="number" step="0.01" min="0" name="base_price" id="inputPrice" value="{{ old('base_price', $product->base_price) }}" required
+                                    class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 text-sm font-bold text-slate-900 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Pack Size / Weight
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Net Weight / Item Size
                             </label>
                             <input type="number" step="0.001" min="0" name="weight" value="{{ old('weight', $product->weight) }}"
-                                class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                                placeholder="e.g. 0.250 for 250g, 1.5 for 1.5kg"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                            <span class="text-[10px] text-slate-400 mt-1 block">💡 In KG (e.g. 0.25 = 250g) or grams</span>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                                 Unit of Measure <span class="text-red-500">*</span>
                             </label>
                             <select name="unit_id" required
-                                class="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
+                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none">
                                 @foreach($units as $unit)
                                 <option value="{{ $unit->id }}" {{ old('unit_id', $product->unit_id) == $unit->id ? 'selected' : '' }}>
                                     {{ $unit->name }} ({{ $unit->short_code }})
@@ -202,505 +189,503 @@
                         </div>
                     </div>
 
-                    <!-- Status Toggle -->
-                    <div class="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl border border-slate-200/80">
+                    <!-- Visibility Toggle -->
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200/80">
                         <div>
-                            <span class="text-sm font-bold text-slate-800 block">Catalog Visibility Status</span>
-                            <span class="text-xs text-slate-500">Active products appear across storefront and wholesale ordering</span>
+                            <span class="text-xs font-bold text-slate-800 block">Catalog Visibility</span>
+                            <span class="text-[11px] text-slate-500">Control storefront and B2B ordering status</span>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_active" value="1" class="sr-only peer" {{ $product->is_active ? 'checked' : '' }}>
+                            <input type="checkbox" name="is_active" id="inputStatus" value="1" class="sr-only peer" {{ $product->is_active ? 'checked' : '' }}>
                             <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
 
-                    <!-- Description -->
+                    <!-- Rich Text Description (Quill.js Editor) -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Description & Technical Notes
-                        </label>
-                        <textarea name="description" rows="4"
-                            class="w-full bg-slate-50/50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none resize-y">{{ old('description', $product->description) }}</textarea>
-                    </div>
-
-                    <div class="flex justify-end pt-4 border-t border-slate-100">
-                        <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-blue-200 active:scale-[0.98] flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Save General Details
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- ============================================== -->
-            <!-- TAB 2: Variants & Options                      -->
-            <!-- ============================================== -->
-            <div class="tabPanel hidden p-6 space-y-6" data-tab-panel="variants">
-                <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Product Variants</h3>
-                        <p class="text-xs text-slate-500">Manage SKUs, sizes, colors, and options for this product.</p>
-                    </div>
-                </div>
-
-                <!-- Existing Variants Table -->
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-[11px] font-bold uppercase text-slate-600 border-b border-slate-200">
-                            <tr>
-                                <th class="py-3 px-4">Size / Weight</th>
-                                <th class="py-3 px-4">Color / Flavor</th>
-                                <th class="py-3 px-4">Variant SKU</th>
-                                <th class="py-3 px-4 text-center">Physical Stock</th>
-                                <th class="py-3 px-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($product->variants as $variant)
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="py-3 px-4 font-semibold text-slate-800">
-                                    {{ $variant->size ?? 'Single' }}
-                                </td>
-                                <td class="py-3 px-4 text-slate-600">
-                                    {{ $variant->color ?? '-' }}
-                                </td>
-                                <td class="py-3 px-4 font-mono text-xs font-semibold text-blue-600">
-                                    {{ $variant->variant_sku }}
-                                </td>
-                                <td class="py-3 px-4 text-center">
-                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold {{ $variant->stocks->sum('quantity') > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800' }}">
-                                        {{ $variant->stocks->sum('quantity') }} pcs
-                                    </span>
-                                </td>
-                                <td class="py-3 px-4 text-right">
-                                    @if($product->variants->count() > 1)
-                                    <form action="{{ route('admin.products.variants.destroy', $variant) }}" method="POST" class="inline"
-                                        onsubmit="return confirm('Delete this variant? Stock history will be removed.')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Variant">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                    @else
-                                    <span class="text-[10px] text-slate-400 italic">Primary Variant</span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="py-8 text-center text-slate-400 text-xs">No variants configured.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Inline Form: Add New Variant -->
-                <div class="bg-slate-50/80 rounded-2xl border border-slate-200 p-5 space-y-4">
-                    <div class="border-b border-slate-200/60 pb-2">
-                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">+ Add New Product Variant</h4>
-                    </div>
-
-                    <form action="{{ route('admin.products.variants.store', $product) }}" method="POST">
-                        @csrf
-                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                            <div class="sm:col-span-3">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Size / Weight <span class="text-red-500">*</span></label>
-                                <input type="text" name="size" placeholder="e.g. 500g, 1kg, XL" required
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none">
-                            </div>
-                            <div class="sm:col-span-3">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Color / Flavor</label>
-                                <input type="text" name="color" placeholder="e.g. Mint, Blue"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none">
-                            </div>
-                            <div class="sm:col-span-4">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Variant SKU <span class="text-red-500">*</span></label>
-                                <input type="text" name="variant_sku" placeholder="e.g. {{ $product->sku }}-500G" required
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-mono uppercase text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none">
-                            </div>
-                            <div class="sm:col-span-2">
-                                <button type="submit"
-                                    class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-sm">
-                                    + Add Variant
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Initial Stock Allocation for new variant -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-200/50">
-                            <div>
-                                <label class="block text-[10px] font-semibold text-slate-600 uppercase mb-1">Opening Stock Quantity</label>
-                                <input type="number" min="0" name="quantity" value="0"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-semibold text-slate-600 uppercase mb-1">Low Alert Threshold</label>
-                                <input type="number" min="0" name="threshold" value="5"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 outline-none">
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- ============================================== -->
-            <!-- TAB 3: Inventory & Warehouse Stock             -->
-            <!-- ============================================== -->
-            <div class="tabPanel hidden p-6 space-y-6" data-tab-panel="stock">
-                <div class="border-b border-slate-100 pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Stock Inventory & Alerts</h3>
-                    <p class="text-xs text-slate-500">Update live inventory count and low-stock notification alerts.</p>
-                </div>
-
-                <form action="{{ route('admin.products.stock.update', $product) }}" method="POST" class="space-y-4">
-                    @csrf
-
-                    @php $stockRowIndex = 0; @endphp
-                    @foreach($product->variants as $variant)
-                    <div class="bg-slate-50/80 rounded-2xl border border-slate-200 p-4 space-y-3">
-                        <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                            <div>
-                                <span class="font-bold text-xs text-slate-800 uppercase">
-                                    Variant: {{ $variant->size ?? 'Single' }} {{ $variant->color ? '('.$variant->color.')' : '' }}
-                                </span>
-                                <span class="font-mono text-xs text-blue-600 ml-2 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                                    {{ $variant->variant_sku }}
-                                </span>
-                            </div>
-                            <span class="text-xs font-bold {{ $variant->stocks->sum('quantity') > 0 ? 'text-emerald-700' : 'text-rose-600' }}">
-                                Total: {{ $variant->stocks->sum('quantity') }} in stock
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                Description & Technical Specifications
+                            </label>
+                            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                                ✨ Rich Text Editor
                             </span>
                         </div>
-
-                        @if($variant->stocks->isNotEmpty())
-                            @foreach($variant->stocks as $stock)
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center bg-white p-3 rounded-xl border border-slate-200">
-                                <input type="hidden" name="stocks[{{ $stockRowIndex }}][stock_id]" value="{{ $stock->id }}">
-                                <input type="hidden" name="stocks[{{ $stockRowIndex }}][variant_id]" value="{{ $variant->id }}">
-
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Stock Quantity (Units) <span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" name="stocks[{{ $stockRowIndex }}][quantity]" value="{{ $stock->quantity }}" required
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:border-blue-500 outline-none">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Low Alert Level <span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" name="stocks[{{ $stockRowIndex }}][threshold]" value="{{ $stock->threshold }}" required
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
-                                </div>
-                            </div>
-                            @php $stockRowIndex++; @endphp
-                            @endforeach
-                        @else
-                            <!-- No stock record yet: allow assigning one -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center bg-white p-3 rounded-xl border border-slate-200">
-                                <input type="hidden" name="stocks[{{ $stockRowIndex }}][variant_id]" value="{{ $variant->id }}">
-
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Stock Quantity (Units) <span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" name="stocks[{{ $stockRowIndex }}][quantity]" value="0" required
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:bg-white focus:border-blue-500 outline-none">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Low Alert Level <span class="text-red-500">*</span></label>
-                                    <input type="number" min="0" name="stocks[{{ $stockRowIndex }}][threshold]" value="5" required
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
-                                </div>
-                            </div>
-                            @php $stockRowIndex++; @endphp
-                        @endif
+                        <div id="quillEditor">{!! old('description', $product->description) !!}</div>
+                        <input type="hidden" name="description" id="hiddenDescription" value="{{ old('description', $product->description) }}">
                     </div>
-                    @endforeach
 
-                    <div class="flex justify-end pt-4 border-t border-slate-100">
+                    <div class="flex justify-end pt-2">
                         <button type="submit"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-all shadow-md shadow-blue-200 active:scale-[0.98] flex items-center gap-2">
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-md shadow-blue-200 active:scale-[0.98] transition-all flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                             </svg>
-                            Save Inventory Levels
+                            Save General Specifications
                         </button>
                     </div>
                 </form>
             </div>
 
-            <!-- ============================================== -->
-            <!-- TAB 4: Wholesale Pricing (Price Tiers)         -->
-            <!-- ============================================== -->
-            <div class="tabPanel hidden p-6 space-y-6" data-tab-panel="pricing">
-                <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Wholesale Volume Tiers (B2B)</h3>
-                        <p class="text-xs text-slate-500">Tiered bulk discount brackets by order quantity.</p>
+            <!-- CARD 2: Product Photos & Gallery Manager -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xs">2</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Product Media Gallery</h2>
                     </div>
-                </div>
-
-                <!-- Existing Tiers Table -->
-                <div class="overflow-x-auto rounded-xl border border-slate-200">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-50 text-[11px] font-bold uppercase text-slate-600 border-b border-slate-200">
-                            <tr>
-                                <th class="py-3 px-4">Min Qty (MOQ)</th>
-                                <th class="py-3 px-4">Max Qty</th>
-                                <th class="py-3 px-4">Wholesale Price</th>
-                                <th class="py-3 px-4">Est. Savings</th>
-                                <th class="py-3 px-4 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($product->priceTiers as $tier)
-                            @php
-                                $savings = $product->base_price > 0 ? round((($product->base_price - $tier->price) / $product->base_price) * 100, 1) : 0;
-                            @endphp
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="py-3 px-4 text-slate-800 font-bold">
-                                    {{ $tier->min_qty }} units
-                                </td>
-                                <td class="py-3 px-4 text-slate-600">
-                                    {{ $tier->max_qty ? $tier->max_qty . ' units' : '∞ (No limit)' }}
-                                </td>
-                                <td class="py-3 px-4 font-bold text-slate-900">
-                                    ₹{{ number_format($tier->price, 2) }}
-                                </td>
-                                <td class="py-3 px-4">
-                                    @if($savings > 0)
-                                    <span class="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                                        ↓ {{ $savings }}% OFF
-                                    </span>
-                                    @else
-                                    <span class="text-xs text-slate-400">Standard</span>
-                                    @endif
-                                </td>
-                                <td class="py-3 px-4 text-right">
-                                    <form action="{{ route('admin.products.price-tiers.destroy', $tier) }}" method="POST"
-                                        onsubmit="return confirm('Remove this bulk pricing tier?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Tier">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="5" class="py-8 text-center text-slate-400 text-xs">No wholesale price tiers added yet.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Add Tier Form -->
-                <div class="bg-slate-50/80 rounded-2xl border border-slate-200 p-5 space-y-4">
-                    <div class="border-b border-slate-200/60 pb-2">
-                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">+ Add Wholesale Volume Tier</h4>
-                    </div>
-
-                    <form action="{{ route('admin.products.price-tiers.store', $product) }}" method="POST">
-                        @csrf
-                        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                            <div class="sm:col-span-4">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Min Qty (MOQ) <span class="text-red-500">*</span></label>
-                                <input type="number" min="1" name="min_qty" required placeholder="e.g. 10"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none">
-                            </div>
-
-                            <div class="sm:col-span-4">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Max Qty (Optional)</label>
-                                <input type="number" min="1" name="max_qty" placeholder="Optional"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none">
-                            </div>
-
-                            <div class="sm:col-span-2">
-                                <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Price (₹) <span class="text-red-500">*</span></label>
-                                <input type="number" step="0.01" min="0" name="price" required placeholder="0.00"
-                                    class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none">
-                            </div>
-
-                            <div class="sm:col-span-2">
-                                <button type="submit"
-                                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-sm">
-                                    + Add Tier
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- ============================================== -->
-            <!-- TAB 5: Media & Gallery                         -->
-            <!-- ============================================== -->
-            <div class="tabPanel hidden p-6 space-y-6" data-tab-panel="media">
-                <div class="border-b border-slate-100 pb-3">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Product Media Gallery</h3>
-                    <p class="text-xs text-slate-500">Manage existing media thumbnails and upload new product photos.</p>
+                    <span class="bg-purple-100 text-purple-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                        {{ $product->images->count() }} Uploaded
+                    </span>
                 </div>
 
                 <!-- Existing Images Grid -->
+                @if($product->images->count() > 0)
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    @forelse($product->images as $image)
-                    <div class="group relative aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shadow-sm">
-                        <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->name }}"
-                            class="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300">
-
-                        <form action="{{ route('admin.products.images.destroy', $image) }}" method="POST"
-                            class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                            onsubmit="return confirm('Permanently delete this image?')">
+                    @foreach($product->images as $index => $img)
+                    <div class="relative aspect-square rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center p-2 group shadow-sm">
+                        <img src="{{ $img->url }}" alt="Product Image" class="max-w-full max-h-full object-contain pointer-events-none">
+                        @if($index === 0)
+                        <span class="absolute top-2 left-2 bg-blue-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                            Main
+                        </span>
+                        @endif
+                        <!-- Delete Form -->
+                        <form action="{{ route('admin.products.images.destroy', [$product, $img]) }}" method="POST"
+                            class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onsubmit="return confirm('Are you sure you want to delete this photo?')">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white p-2.5 rounded-full shadow-lg transition-transform active:scale-90" title="Delete Image">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <button type="submit" class="p-1.5 bg-red-600 text-white hover:bg-red-700 rounded-lg shadow-md transition-colors" title="Delete Image">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </button>
                         </form>
                     </div>
-                    @empty
-                    <div class="col-span-full py-10 text-center bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 text-slate-400">
-                        <svg class="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p class="text-xs font-semibold text-slate-500">No media photos uploaded yet</p>
-                    </div>
-                    @endforelse
+                    @endforeach
                 </div>
+                @else
+                <div class="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400">
+                    No images uploaded yet. Upload pictures below to display on storefront.
+                </div>
+                @endif
 
-                <!-- Upload More Images Form -->
+                <!-- Upload New Images Form -->
                 <form action="{{ route('admin.products.images.store', $product) }}" method="POST" enctype="multipart/form-data" class="space-y-4 pt-2">
                     @csrf
-                    <div class="relative border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-2xl p-6 text-center transition-colors bg-slate-50/50 group cursor-pointer">
-                        <input type="file" name="images[]" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <div class="space-y-2 pointer-events-none">
-                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform shadow-sm">
+                    <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50/60 hover:bg-blue-50/30 rounded-2xl p-5 text-center transition-all cursor-pointer relative group">
+                        <input type="file" name="images[]" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="flex flex-col items-center justify-center space-y-1.5 pointer-events-none">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </div>
-                            <span class="text-xs font-bold text-blue-600 block">Click or Drag additional product photos here</span>
-                            <span class="text-[11px] text-slate-400">PNG, JPG, WEBP, AVIF up to 3MB</span>
+                            <div>
+                                <p class="text-xs font-bold text-slate-800">Select new photos to upload</p>
+                                <p class="text-[11px] text-slate-400">JPG, PNG, WEBP up to 3MB each</p>
+                            </div>
                         </div>
                     </div>
-
-                    <button type="submit" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2.5 rounded-xl text-xs transition-colors shadow-sm">
-                        Upload Selected Images
-                    </button>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
+                            Upload Photos
+                        </button>
+                    </div>
                 </form>
             </div>
 
-        </div>
-    </div>
-
-    <!-- RIGHT SIDEBAR: Overview & Stats Card (4 cols) -->
-    <div class="lg:col-span-4 space-y-6">
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 sticky top-6 space-y-6">
-            <div class="border-b border-slate-100 pb-3">
-                <h2 class="text-base font-bold text-slate-900 tracking-tight">Product Summary</h2>
-                <p class="text-xs text-slate-500">Live operational overview of this product.</p>
-            </div>
-
-            <!-- Total Stock Metric -->
-            <div class="p-4 rounded-xl border {{ $product->total_stock > 10 ? 'bg-emerald-50 border-emerald-200' : ($product->total_stock > 0 ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200') }}">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider {{ $product->total_stock > 10 ? 'text-emerald-800' : ($product->total_stock > 0 ? 'text-amber-800' : 'text-rose-800') }}">
-                        @if($product->total_stock > 10)
-                            ✓ In Stock
-                        @elseif($product->total_stock > 0)
-                            ⚠ Low Stock
-                        @else
-                            ✕ Out of Stock
-                        @endif
+            <!-- CARD 3: Variants & Stock Inventory Manager -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">3</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Variants & Inventory</h2>
+                    </div>
+                    <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                        {{ $product->variants->count() }} Variants
                     </span>
-                    <span class="text-xl font-bold font-mono text-slate-900">{{ $product->total_stock }}</span>
                 </div>
-                <span class="text-[11px] text-slate-600 block mt-1">Total physical inventory across all variants</span>
-            </div>
 
-            <!-- Stats List -->
-            <div class="space-y-2.5 text-xs text-slate-600 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-                <div class="flex items-center justify-between py-1 border-b border-slate-200/60">
-                    <span>Retail Price:</span>
-                    <span class="font-bold text-slate-900">₹{{ number_format($product->base_price, 2) }}</span>
-                </div>
-                <div class="flex items-center justify-between py-1 border-b border-slate-200/60">
-                    <span>Pack Unit:</span>
-                    <span class="font-semibold text-slate-800">{{ $product->formatted_weight ?: 'N/A' }}</span>
-                </div>
-                <div class="flex items-center justify-between py-1 border-b border-slate-200/60">
-                    <span>Category:</span>
-                    <span class="font-semibold text-slate-800">{{ $product->category->name ?? 'None' }}</span>
-                </div>
-                <div class="flex items-center justify-between py-1 border-b border-slate-200/60">
-                    <span>Variants Count:</span>
-                    <span class="font-bold text-slate-900">{{ $product->variants->count() }}</span>
-                </div>
-                <div class="flex items-center justify-between py-1 border-b border-slate-200/60">
-                    <span>Price Tiers:</span>
-                    <span class="font-bold text-slate-900">{{ $product->priceTiers->count() }}</span>
-                </div>
-                <div class="flex items-center justify-between py-1">
-                    <span>Last Updated:</span>
-                    <span class="text-slate-500 font-mono">{{ $product->updated_at->format('M d, Y H:i') }}</span>
-                </div>
-            </div>
+                <!-- Existing Variants Table & Stock Editor -->
+                <form action="{{ route('admin.products.stock.update', $product) }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead class="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 uppercase">
+                                <tr>
+                                    <th class="p-3">Variant SKU</th>
+                                    <th class="p-3">Size / Spec</th>
+                                    <th class="p-3">Color / Flavor</th>
+                                    <th class="p-3 w-32">Warehouse Qty</th>
+                                    <th class="p-3 w-28">Low Alert</th>
+                                    <th class="p-3 text-center w-12">Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($product->variants as $variant)
+                                @php $stock = $variant->stocks->first(); @endphp
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="p-3 font-mono font-bold text-slate-800">
+                                        {{ $variant->variant_sku }}
+                                    </td>
+                                    <td class="p-3 text-slate-700">
+                                        {{ $variant->size ?? 'Standard' }}
+                                    </td>
+                                    <td class="p-3 text-slate-700">
+                                        {{ $variant->color ?? '-' }}
+                                    </td>
+                                    <td class="p-3">
+                                        @if($stock)
+                                        <input type="number" min="0"
+                                            name="stock[{{ $variant->id }}][{{ $stock->warehouse_id }}][quantity]"
+                                            value="{{ $stock->quantity }}"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-900 focus:bg-white focus:border-blue-500 outline-none">
+                                        @else
+                                        <span class="text-slate-400 italic">No Warehouse Stock</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-3">
+                                        @if($stock)
+                                        <input type="number" min="0"
+                                            name="stock[{{ $variant->id }}][{{ $stock->warehouse_id }}][threshold]"
+                                            value="{{ $stock->threshold }}"
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
+                                        @else
+                                        -
+                                        @endif
+                                    </td>
+                                    <td class="p-3 text-center">
+                                        @if($product->variants->count() > 1)
+                                        <button type="button" onclick="if(confirm('Delete variant {{ $variant->variant_sku }}?')) document.getElementById('delete-variant-{{ $variant->id }}').submit()"
+                                            class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors" title="Delete Variant">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                        @else
+                                        <span class="text-[10px] text-slate-400">Primary</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="p-4 text-center text-slate-400 text-xs">No variants configured.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
-            <!-- Danger Zone: Delete Product -->
-            <div class="pt-2 border-t border-slate-100">
-                <form action="{{ route('admin.products.destroy', $product) }}" method="POST"
-                    onsubmit="return confirm('Warning: Deleting this product will remove all its variants, images, stock records, and tier pricing. Proceed?')">
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
+                            Update Stock Levels
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Hidden Delete Variant Forms -->
+                @foreach($product->variants as $variant)
+                <form id="delete-variant-{{ $variant->id }}" action="{{ route('admin.products.variants.destroy', [$product, $variant]) }}" method="POST" class="hidden">
                     @csrf
                     @method('DELETE')
-                    <button type="submit"
-                        class="w-full bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 hover:text-rose-700 font-semibold px-4 py-2.5 rounded-xl text-xs transition-colors flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        Delete Entire Product
+                </form>
+                @endforeach
+
+                <!-- Add New Variant Sub-Form -->
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">+ Add New Variant Option</h3>
+                    <form action="{{ route('admin.products.variants.store', $product) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-5 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        @csrf
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Size / Spec</label>
+                            <input type="text" name="size" placeholder="e.g. 500g" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Color / Flavor</label>
+                            <input type="text" name="color" placeholder="e.g. Grape" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Variant SKU <span class="text-red-500">*</span></label>
+                            <input type="text" name="variant_sku" required placeholder="SKU-NEW" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-mono uppercase outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Initial Qty</label>
+                            <input type="number" min="0" name="quantity" value="0" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none focus:border-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors">
+                                Add Variant
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- CARD 4: Wholesale Bulk Pricing Tiers -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs">4</span>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Wholesale Volume Price Tiers</h2>
+                    </div>
+                    <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                        {{ $product->priceTiers->count() }} Tiers Configured
+                    </span>
+                </div>
+
+                <!-- Existing Tiers Table -->
+                @if($product->priceTiers->count() > 0)
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 font-bold text-slate-600 uppercase">
+                            <tr>
+                                <th class="p-3">Order Quantity Range</th>
+                                <th class="p-3">Wholesale Rate</th>
+                                <th class="p-3">Buyer Savings</th>
+                                <th class="p-3 text-center w-12">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @foreach($product->priceTiers as $tier)
+                            @php
+                                $savings = ($product->base_price > 0 && $tier->price < $product->base_price)
+                                    ? round((($product->base_price - $tier->price) / $product->base_price) * 100)
+                                    : 0;
+                            @endphp
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="p-3 font-semibold text-slate-800">
+                                    {{ $tier->min_qty }} - {{ $tier->max_qty ? $tier->max_qty . ' units' : '∞ (Unlimited)' }}
+                                </td>
+                                <td class="p-3 font-bold text-emerald-700 text-sm">
+                                    ${{ number_format($tier->price, 2) }}
+                                </td>
+                                <td class="p-3">
+                                    @if($savings > 0)
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                                        Save {{ $savings }}%
+                                    </span>
+                                    @else
+                                    <span class="bg-slate-100 text-slate-600 text-[10px] font-medium px-2 py-0.5 rounded">
+                                        Tier Rate
+                                    </span>
+                                    @endif
+                                </td>
+                                <td class="p-3 text-center">
+                                    <form action="{{ route('admin.products.price-tiers.destroy', [$product, $tier]) }}" method="POST"
+                                        onsubmit="return confirm('Remove this volume pricing tier?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors" title="Delete Tier">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                @else
+                <div class="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-xl text-center text-xs text-slate-400">
+                    No volume tiers configured. Add quantity discounts below to incentivize bulk purchasing.
+                </div>
+                @endif
+
+                <!-- Add Tier Sub-Form -->
+                <div class="pt-4 border-t border-slate-100">
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">+ Add New Volume Discount Tier</h3>
+                    <form action="{{ route('admin.products.price-tiers.store', $product) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        @csrf
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Min Qty <span class="text-red-500">*</span></label>
+                            <input type="number" min="1" name="min_qty" required placeholder="10" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Max Qty (Blank = ∞)</label>
+                            <input type="number" min="1" name="max_qty" placeholder="e.g. 50" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Tier Rate ($) <span class="text-red-500">*</span></label>
+                            <input type="number" step="0.01" min="0" name="price" required placeholder="0.00" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs font-bold text-emerald-700 outline-none focus:border-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors">
+                                Add Tier
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="bg-red-50/50 rounded-2xl border border-red-200 p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h3 class="text-sm font-bold text-red-900">Delete This Product</h3>
+                    <p class="text-xs text-red-600 mt-0.5">This will permanently delete the product, its variants, gallery photos, and price tiers.</p>
+                </div>
+                <form action="{{ route('admin.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this product?')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+                        Delete Product
                     </button>
                 </form>
             </div>
 
         </div>
-    </div>
 
+        <!-- RIGHT COLUMN: Sticky Sidebar & Live Preview (4 Cols) -->
+        <div class="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
+
+            <!-- SIDEBAR CARD 1: Live Storefront Card Preview -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                    <span class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Live Storefront Preview
+                    </span>
+                    <a href="{{ route('shop.product', $product->id) }}" target="_blank" class="text-[10px] text-blue-600 hover:underline font-semibold">
+                        Open Page ↗
+                    </a>
+                </div>
+
+                <!-- Mini Storefront Card -->
+                <div class="bg-slate-50/60 rounded-xl border border-slate-200 overflow-hidden group">
+                    <div class="relative h-44 bg-slate-100 flex items-center justify-center overflow-hidden p-2">
+                        <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold {{ $product->total_stock > 0 ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white' }} shadow-sm z-10">
+                            {{ $product->total_stock > 0 ? '● In Stock (' . $product->total_stock . ')' : 'Out of Stock' }}
+                        </span>
+                        <span id="previewStatusBadge" class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold {{ $product->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600' }} z-10">
+                            {{ $product->is_active ? 'ACTIVE' : 'INACTIVE' }}
+                        </span>
+                        <img id="previewImage" src="{{ $product->featured_image_url }}" alt="Preview"
+                            class="max-w-full max-h-full object-contain pointer-events-none transition-transform duration-300">
+                    </div>
+
+                    <div class="p-4 space-y-2 bg-white">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400">
+                            <span id="previewSku" class="font-mono bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-semibold">{{ $product->sku }}</span>
+                            <span id="previewCategory" class="truncate max-w-[120px] text-right font-medium text-slate-500">{{ $product->category->name ?? 'Category' }}</span>
+                        </div>
+                        <h3 id="previewTitle" class="font-bold text-slate-900 text-xs leading-snug line-clamp-2">
+                            {{ $product->name }}
+                        </h3>
+                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-slate-400 block font-medium">Base Price</span>
+                                <span id="previewPrice" class="text-sm font-bold text-slate-900">${{ number_format($product->base_price, 2) }}</span>
+                            </div>
+                            <span class="text-[10px] text-blue-600 bg-blue-50 px-2 py-1 rounded-lg font-bold">
+                                Wholesale
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIDEBAR CARD 2: Quick Metrics & Health -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-3">
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide border-b border-slate-100 pb-2.5">
+                    Catalog Metrics
+                </h3>
+
+                <div class="space-y-2.5 text-xs">
+                    <div class="flex items-center justify-between text-slate-500">
+                        <span>Total Inventory:</span>
+                        <span class="font-bold text-slate-800">{{ $product->total_stock }} units</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-500">
+                        <span>Active Variants:</span>
+                        <span class="font-bold text-slate-800">{{ $product->variants->count() }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-500">
+                        <span>Volume Tiers:</span>
+                        <span class="font-bold text-emerald-600">{{ $product->priceTiers->count() }} Tiers</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-500">
+                        <span>Gallery Photos:</span>
+                        <span class="font-bold text-purple-600">{{ $product->images->count() }} Photos</span>
+                    </div>
+                    <div class="flex items-center justify-between text-slate-500 pt-2 border-t border-slate-100">
+                        <span>Created:</span>
+                        <span class="text-slate-600">{{ $product->created_at->format('M d, Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 </div>
 
-<!-- Tab Switching Script -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tabBtns = document.querySelectorAll('.tabBtn');
-    const tabPanels = document.querySelectorAll('.tabPanel');
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Quill Rich Text Editor
+    const quill = new Quill('#quillEditor', {
+        theme: 'snow',
+        placeholder: 'Enter detailed wholesale description, technical notes, usage guidelines...',
+        modules: {
+            toolbar: [
+                [{ 'header': [2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                ['blockquote'],
+                ['clean']
+            ]
+        }
+    });
 
-    function switchTab(tabName) {
-        tabBtns.forEach(btn => {
-            const isActive = btn.dataset.tab === tabName;
-            btn.classList.toggle('active-tab', isActive);
-            btn.classList.toggle('text-blue-600', isActive);
-            btn.classList.toggle('border-blue-600', isActive);
-            btn.classList.toggle('font-semibold', isActive);
-            btn.classList.toggle('text-slate-500', !isActive);
-            btn.classList.toggle('border-transparent', !isActive);
-            btn.classList.toggle('font-medium', !isActive);
-        });
+    const form = document.getElementById('editGeneralForm');
+    const hiddenDesc = document.getElementById('hiddenDescription');
 
-        tabPanels.forEach(panel => {
-            panel.classList.toggle('hidden', panel.dataset.tabPanel !== tabName);
-        });
-    }
+    form.addEventListener('submit', () => {
+        const html = quill.root.innerHTML;
+        hiddenDesc.value = (html === '<p><br></p>') ? '' : html;
+    });
 
-    tabBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    const nameInput = document.getElementById('inputName');
+    const priceInput = document.getElementById('inputPrice');
+    const catSelect = document.getElementById('inputCategory');
+    const skuInput = document.getElementById('inputSku');
+    const statusCheck = document.getElementById('inputStatus');
+
+    const previewTitle = document.getElementById('previewTitle');
+    const previewPrice = document.getElementById('previewPrice');
+    const previewCategory = document.getElementById('previewCategory');
+    const previewSku = document.getElementById('previewSku');
+    const previewStatus = document.getElementById('previewStatusBadge');
+
+    nameInput?.addEventListener('input', (e) => {
+        previewTitle.textContent = e.target.value.trim() || 'Product Name';
+    });
+
+    priceInput?.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value) || 0;
+        previewPrice.textContent = `$${val.toFixed(2)}`;
+    });
+
+    catSelect?.addEventListener('change', (e) => {
+        const text = e.target.options[e.target.selectedIndex]?.text?.replace(/^[📁↳\s]+/, '') || 'Category';
+        previewCategory.textContent = text;
+    });
+
+    skuInput?.addEventListener('input', (e) => {
+        previewSku.textContent = e.target.value.toUpperCase() || 'SKU';
+    });
+
+    statusCheck?.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            previewStatus.textContent = 'ACTIVE';
+            previewStatus.className = 'absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 z-10';
+        } else {
+            previewStatus.textContent = 'INACTIVE';
+            previewStatus.className = 'absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600 z-10';
+        }
+    });
 });
 </script>
-@endsection
+@endsection

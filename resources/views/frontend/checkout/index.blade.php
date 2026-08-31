@@ -122,7 +122,7 @@
                                 @php
                                     $price = $item->product->priceForUser($customer, $item->quantity);
                                 @endphp
-                                ₹{{ number_format($price * $item->quantity, 2) }}
+                                ${{ number_format($price * $item->quantity, 2) }}
                             </div>
                         </div>
                         @endforeach
@@ -131,7 +131,7 @@
                     <div style="border-top: 2px solid #ddd; padding-top: 12px; margin-bottom: 20px;">
                         <div style="display: flex; justify-content: space-between; font-size: 18px; font-weight: bold;">
                             <span>Total Payable:</span>
-                            <span style="color: #1a8917;">₹{{ number_format($total, 2) }}</span>
+                            <span style="color: #1a8917;">${{ number_format($total, 2) }}</span>
                         </div>
                     </div>
 

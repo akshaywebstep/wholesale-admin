@@ -9,14 +9,27 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::whereNull('parent_id')
-            ->with('children.children')
-            ->latest()
-            ->paginate(15);
+        $query = Category::whereNull('parent_id')
+            ->with(['children' => fn($q) => $q->withCount('products'), 'products']);
 
-        return view('admin.categories.index', compact('categories'));
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('children', function ($cq) use ($search) {
+                        $cq->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $categories = $query->orderBy('id', 'asc')->paginate(4)->withQueryString();
+
+        $totalParents = Category::whereNull('parent_id')->count();
+        $totalSubs = Category::whereNotNull('parent_id')->count();
+
+        return view('admin.categories.index', compact('categories', 'totalParents', 'totalSubs'));
     }
 
     public function create(Request $request)

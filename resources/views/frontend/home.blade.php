@@ -41,22 +41,53 @@
             </dl>
         </div>
 
-        @guest('customer')
-        <aside class="card card--form">
-            <h2 class="card__title">Get wholesale pricing</h2>
-            <p class="card__note">
-                Prices are visible to approved trade accounts only. Verification takes under 24 hours.
+                                @customer
+        @php
+            $activeCust = (auth('customer')->user() && auth('customer')->user()->user_type === 'CUSTOMER') ? auth('customer')->user() : auth('web')->user();
+        @endphp
+        <aside class="card card--form" style="background: #ffffff; border: 1.5px solid #d8e4dc; border-radius: 16px; padding: 28px; box-shadow: 0 15px 35px -5px rgba(11,34,18,0.25);">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #a7f3d0;">
+                ● Verified Trade Account
+            </div>
+            <h2 class="card__title" style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin-bottom: 8px;">
+                Wholesale Pricing Active
+            </h2>
+            <p class="card__note" style="color: #546b5a; font-size: 13px; line-height: 1.5; margin-bottom: 18px;">
+                Welcome back, <strong>{{ $activeCust->name }}</strong>! Live wholesale bulk discounts and case rates are unlocked.
             </p>
-            <a href="{{ route('register') }}" class="btn btn--dark btn--block">Request Access</a>
-            <p class="card__fine">
-                <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <a href="#deals" class="btn btn--primary btn--block" style="padding: 13px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; text-align: center; text-decoration: none; display: block; margin-bottom: 12px; background: #d99b26; color: #0b2212; border: none; box-shadow: 0 4px 14px rgba(217,155,38,0.35);">
+                📦 Browse Full Catalog &rarr;
+            </a>
+            <div style="text-align: center; font-size: 12px; color: #546b5a;">
+                <a href="{{ route('cart.index') }}" style="color: #144523; font-weight: 800; text-decoration: none;">View Active Order / Cart &rarr;</a>
+            </div>
+        </aside>
+        @else
+        <aside class="card card--form" style="background: #ffffff; border: 1.5px solid #d8e4dc; border-radius: 16px; padding: 28px; box-shadow: 0 15px 35px -5px rgba(11,34,18,0.25);">
+            <div style="display: inline-flex; align-items: center; gap: 6px; background: #fdf6e7; color: #b8801b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #fde68a;">
+                ⚡ 2-Minute Trade Setup
+            </div>
+            <h2 class="card__title" style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin-bottom: 8px;">
+                Get Wholesale Pricing
+            </h2>
+            <p class="card__note" style="color: #546b5a; font-size: 13px; line-height: 1.5; margin-bottom: 18px;">
+                True bulk case prices, tier rebates & truck routes are visible to approved retailers only.
+            </p>
+            <a href="{{ route('register') }}" class="btn btn--primary btn--block" style="padding: 13px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; text-align: center; text-decoration: none; display: block; margin-bottom: 12px; background: #d99b26; color: #0b2212; border: none; box-shadow: 0 4px 14px rgba(217,155,38,0.35);">
+                ✨ Create Trade Account &rarr;
+            </a>
+            <div style="text-align: center; font-size: 12px; color: #546b5a; margin-bottom: 12px;">
+                Already verified? <a href="{{ route('login') }}" style="color: #144523; font-weight: 800; text-decoration: none;">Sign In &rarr;</a>
+            </div>
+            <p class="card__fine" style="font-size: 11px; color: #546b5a; display: flex; align-items: center; gap: 6px; border-top: 1px solid #d8e4dc; padding-top: 10px; margin-top: 8px;">
+                <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px; height:14px; flex-shrink:0; color: #144523;">
                     <rect x="5" y="10" width="14" height="10" rx="2" />
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg> 21+ verification required for tobacco
-                categories.
+                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                </svg> 
+                21+ state business verification required for age-restricted SKUs.
             </p>
         </aside>
-        @endguest
+        @endcustomer
     </div>
 </section>
 
@@ -182,13 +213,9 @@
                     @if($product->is_active && $product->created_at->gt(now()->subDays(7)))
                     <span class="badge badge--dark">New</span>
                     @endif
-                    @if($product->images->isNotEmpty())
-                    <img src="{{ asset('storage/' . $product->images->first()->image_path) }}"
-                        alt="{{ $product->name }}" width="800" height="800" loading="lazy" />
-                    @else
-                    <img src="{{ asset('images/product1.png') }}" alt="{{ $product->name }}" width="800" height="800"
-                        loading="lazy" />
-                    @endif
+                    <img src="{{ $product->featured_image_url }}"
+                        alt="{{ $product->name }}" width="800" height="800" loading="lazy"
+                        onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
                     <button class="product__quick" type="button" data-id="{{ $product->id }}">Quick view</button>
                 </div>
                 <div class="product__body">
@@ -200,9 +227,12 @@
 
                     <div class="product__price-container"
                         style="border-top: 1px dotted #e5e7eb; border-bottom: none; padding: 10px 0; margin: 8px 0;">
-                        @if(auth('customer')->check())
+                        @customer
+                        @php
+                            $activeCust = (auth('customer')->user() && auth('customer')->user()->user_type === 'CUSTOMER') ? auth('customer')->user() : auth('web')->user();
+                        @endphp
                         <p class="product__price" style="border: none; margin: 0;">
-                            ₹{{ number_format($product->priceForUser(auth('customer')->user()), 2) }}
+                            ${{ number_format($product->priceForUser($activeCust), 2) }}
                         </p>
                         @else
                         <a href="{{ route('login') }}" class="product__login-price" style="border: none;">
@@ -214,12 +244,22 @@
                             </svg>
                             <span>Log In To See Price</span>
                         </a>
-                        @endif
+                        @endcustomer
                     </div>
 
+                    @customer
                     <a href="{{ route('shop.product', $product->id) }}" class="btn btn--outline btn--block">
                         Add to order
                     </a>
+                    @else
+                    <a href="{{ route('login') }}" class="btn btn--outline btn--block" style="color: #64748b; border-color: #cbd5e1; background: #f8fafc; font-size: 13px; font-weight: 600;">
+                        <svg class="lock-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Log In To Order
+                    </a>
+                    @endcustomer
                 </div>
             </article>
             @empty
@@ -231,272 +271,112 @@
     </div>
 </section>
 
-<!-- Store Type Solutions & Turnkey Starter Bundles -->
+<!-- Store Type Solutions & Department Showcase (DYNAMIC) -->
 <section class="section solutions" id="solutions">
     <div class="container">
         <header class="section__head section__head--center">
             <div>
-                <p class="eyebrow">Custom Wholesale Solutions</p>
-                <h2 class="heading">Tailored Solutions &amp; Turnkey Starter Bundles</h2>
+                <p class="eyebrow">Department Inventory Highlights</p>
+                <h2 class="heading">Tailored Solutions &amp; Category Showcase</h2>
                 <p class="section__sub">
-                    Select your store model to discover high-margin inventory mixes, turnkey starter display packs, and
-                    customized wholesale support crafted specifically for your business.
+                    Explore top-selling inventory mixes, wholesale pack sizes, and direct distribution support crafted for retail shelves.
                 </p>
             </div>
         </header>
 
-        <div class="solution-tabs" role="tablist" aria-label="Select store type">
-            <button class="solution-tab is-active" type="button" role="tab" aria-selected="true"
-                aria-controls="panel-cstore" id="tab-cstore" data-target="panel-cstore">
+        <!-- Dynamic Department Solution Tabs -->
+        <div class="solution-tabs" role="tablist" aria-label="Select department">
+            @foreach(($solutions ?? collect()) as $index => $sol)
+            <button class="solution-tab {{ $index === 0 ? 'is-active' : '' }}" type="button" role="tab"
+                aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
+                aria-controls="panel-{{ $sol['slug'] }}" id="tab-{{ $sol['slug'] }}" data-target="panel-{{ $sol['slug'] }}">
                 <span class="solution-tab__icon">
-                    <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <polyline points="9 22 9 12 15 12 15 22" /></svg>
+                    <span style="font-size: 16px;">{{ $sol['icon'] }}</span>
                 </span>
-                <span>Convenience &amp; Gas Marts</span>
+                <span>{{ $sol['name'] }}</span>
             </button>
-            <button class="solution-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-smokeshop"
-                id="tab-smokeshop" data-target="panel-smokeshop">
-                <span class="solution-tab__icon">
-                    <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path
-                            d="M12 3c3 3.5 5.5 5.6 5.5 9a5.5 5.5 0 0 1-11 0c0-2 1-3.5 2.5-5 .3 1.4 1.2 2 2 2 .9 0 1.6-.8 1.6-2 0-1.4-.6-2.6-.6-4Z" />
-                    </svg>
-                </span>
-                <span>Smoke &amp; Hookah Shops</span>
-            </button>
-            <button class="solution-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-vape"
-                id="tab-vape" data-target="panel-vape">
-                <span class="solution-tab__icon">
-                    <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path d="M17 4h3v6h-3zM3 13h14v4H3z" />
-                        <path d="M6 13V9M10 13V9" /></svg>
-                </span>
-                <span>Vape &amp; E-Cig Outlets</span>
-            </button>
-            <button class="solution-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-grocer"
-                id="tab-grocer" data-target="panel-grocer">
-                <span class="solution-tab__icon">
-                    <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                        <path d="M6 4h12l-1.5 16h-9z" />
-                        <path d="M8 9h8M8 14h8" /></svg>
-                </span>
-                <span>Independent Grocers</span>
-            </button>
+            @endforeach
         </div>
 
         <div class="solution-panels">
-            <!-- Panel 1: C-Stores -->
-            <div class="solution-panel is-active" id="panel-cstore" role="tabpanel" aria-labelledby="tab-cstore">
+            @foreach(($solutions ?? collect()) as $index => $sol)
+            <div class="solution-panel {{ $index === 0 ? 'is-active' : '' }}" id="panel-{{ $sol['slug'] }}" role="tabpanel" aria-labelledby="tab-{{ $sol['slug'] }}" {{ $index === 0 ? '' : 'hidden' }}>
                 <div class="solution-panel__grid">
+                    <!-- Left Info -->
                     <div class="solution-info">
-                        <span class="solution-badge">High-Turnover Inventory</span>
-                        <h3 class="solution-title">Maximum Cashflow for Fast-Paced C-Stores</h3>
+                        <span class="solution-badge">{{ $sol['badge'] }}</span>
+                        <h3 class="solution-title">{{ $sol['tagline'] }}</h3>
                         <p class="solution-desc">
-                            Keep your counter displays stocked with impulse items, high-margin beverages, lighter
-                            displays, and top-selling energy snacks with zero shelf downtime.
+                            {{ $sol['desc'] }}
                         </p>
                         <div class="solution-stats">
-                            <div class="sol-stat"><strong>48%</strong><span>Avg. Retail Margin</span></div>
-                            <div class="sol-stat"><strong>Next-Day</strong><span>Store Drop-off</span></div>
-                            <div class="sol-stat"><strong>1-Invoice</strong><span>Multi-Department</span></div>
+                            <div class="sol-stat"><strong>{{ $sol['product_count'] }}+</strong><span>Active SKUs</span></div>
+                            <div class="sol-stat"><strong>{{ $sol['sub_count'] }}</strong><span>Product Lines</span></div>
+                            <div class="sol-stat"><strong>Next-Day</strong><span>Truck Drop-off</span></div>
                         </div>
                         <ul class="solution-perks">
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Pre-assembled counter acrylic display
-                                stands</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Pre-barcoded POS stickers for fast
-                                checkout</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Standing weekly stock refills on key
-                                impulse SKUs</li>
+                            @foreach($sol['perks'] as $perk)
+                            <li>
+                                <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                                {{ $perk }}
+                            </li>
+                            @endforeach
                         </ul>
                     </div>
-                    <div class="starter-card">
-                        <div class="starter-card__tag">Turnkey Bundle</div>
-                        <div class="starter-card__media">
-                            <img src="{{ asset('images/p-zigzag-cigars.jpg') }}"
-                                alt="Zig Zag Wood Cigars Velvet Impulse Pack" loading="lazy" />
-                        </div>
-                        <div class="starter-card__content">
-                            <p class="starter-card__cat">C-Store Starter Pack</p>
-                            <h4 class="starter-card__title">Countertop Zig Zag Wood Cigars 2/$1.39 Kit</h4>
-                            <p class="starter-card__meta">Includes: 12x Zig Zag Wood Cigars Velvet Displays, 15x Zig Zag
-                                Wraps 15CT Boxes &amp; Countertop Acrylic Display Rack</p>
-                            <div class="starter-card__pricing">
-                                <div class="price-block"><span class="price-label">Wholesale Cost</span><strong
-                                        class="price-val">$289.00</strong></div>
-                                <div class="price-block price-block--green"><span class="price-label">Est. Retail
-                                        Value</span><strong class="price-val">$580.00</strong></div>
-                            </div>
-                            <div class="starter-card__footer">
-                                <span class="margin-pill">50.1% Profit Margin</span>
-                                <a href="#account" class="btn btn--primary btn--sm">Order Starter Kit &rarr;</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Panel 2: Smoke & Hookah Shops -->
-            <div class="solution-panel" id="panel-smokeshop" role="tabpanel" aria-labelledby="tab-smokeshop" hidden>
-                <div class="solution-panel__grid">
-                    <div class="solution-info">
-                        <span class="solution-badge">Premium Glass &amp; Shisha</span>
-                        <h3 class="solution-title">Curated Smoke Shop &amp; Lounge Selections</h3>
-                        <p class="solution-desc">
-                            Access factory-direct pricing on premium borosilicate glass, Al Fakher shisha tins, natural
-                            coconut coals, heavy-duty foil, and high-demand rolling papers.
-                        </p>
-                        <div class="solution-stats">
-                            <div class="sol-stat"><strong>58%</strong><span>Avg. Retail Margin</span></div>
-                            <div class="sol-stat"><strong>800+</strong><span>Shisha &amp; Glass SKUs</span></div>
-                            <div class="sol-stat"><strong>100%</strong><span>Tax Compliant</span></div>
-                        </div>
-                        <ul class="solution-perks">
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Licensed tobacco distributor tax
-                                manifests attached</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Guaranteed break-free transit with padded
-                                crate delivery</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Seasonal shisha flavor recommendations
-                                from reps</li>
-                        </ul>
-                    </div>
+                                        <!-- Right Featured Product Showcase Card -->
+                    @if($sol['product'])
                     <div class="starter-card">
-                        <div class="starter-card__tag">Turnkey Bundle</div>
+                        <div class="starter-card__tag">Featured SKU</div>
                         <div class="starter-card__media">
-                            <img src="{{ asset('images/p-zigzag-starter.jpg') }}"
-                                alt="Zig Zag & Al Fakher Showcase Master Bundle" loading="lazy" />
+                            <img src="{{ $sol['product']->featured_image_url }}" class="starter-card__ambient-bg" alt="" aria-hidden="true" onerror="this.style.display='none';" />
+                            <a href="{{ route('shop.product', $sol['product']->id) }}" class="starter-card__img-link">
+                                <img src="{{ $sol['product']->featured_image_url }}"
+                                    alt="{{ $sol['product']->name }}" class="starter-card__main-img" loading="lazy"
+                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                            </a>
                         </div>
                         <div class="starter-card__content">
-                            <p class="starter-card__cat">Smoke Shop Starter Pack</p>
-                            <h4 class="starter-card__title">Zig Zag &amp; Al Fakher Showcase Master Pack</h4>
-                            <p class="starter-card__meta">Includes: 25x Zig Zag Wraps Fruit Collection, 10x Al Fakher
-                                250g Tubs, 20x Al Fakher 50g Packs &amp; Display Stand</p>
-                            <div class="starter-card__pricing">
-                                <div class="price-block"><span class="price-label">Wholesale Cost</span><strong
-                                        class="price-val">$345.00</strong></div>
-                                <div class="price-block price-block--green"><span class="price-label">Est. Retail
-                                        Value</span><strong class="price-val">$790.00</strong></div>
-                            </div>
-                            <div class="starter-card__footer">
-                                <span class="margin-pill">56.3% Profit Margin</span>
-                                <a href="#account" class="btn btn--primary btn--sm">Order Starter Kit &rarr;</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <p class="starter-card__cat">{{ $sol['name'] }}</p>
+                            <a href="{{ route('shop.product', $sol['product']->id) }}" style="text-decoration: none; color: inherit;">
+                                <h4 class="starter-card__title" style="margin-bottom: 8px;">{{ $sol['product']->name }}</h4>
+                            </a>
+                            <p class="starter-card__meta" style="margin-bottom: 14px;">
+                                SKU: <strong>{{ $sol['product']->sku }}</strong>
+                                @if($sol['product']->formatted_weight)
+                                &middot; Weight: <strong>{{ $sol['product']->formatted_weight }}</strong>
+                                @endif
+                                &middot; <span style="color:#16a34a; font-weight:600;">● In Stock</span>
+                            </p>
 
-            <!-- Panel 3: Vape Outlets -->
-            <div class="solution-panel" id="panel-vape" role="tabpanel" aria-labelledby="tab-vape" hidden>
-                <div class="solution-panel__grid">
-                    <div class="solution-info">
-                        <span class="solution-badge">Hot Trends &amp; Disposables</span>
-                        <h3 class="solution-title">Trending Pods, Disposables &amp; Hardware</h3>
-                        <p class="solution-desc">
-                            Keep up with rapid market trends. Stock authentic, lab-tested disposable devices, e-liquid
-                            refill pods, and starter hardware directly from top authorized vendors.
-                        </p>
-                        <div class="solution-stats">
-                            <div class="sol-stat"><strong>52%</strong><span>Avg. Retail Margin</span></div>
-                            <div class="sol-stat"><strong>Authentic</strong><span>Batch Verification</span></div>
-                            <div class="sol-stat"><strong>Weekly</strong><span>New Flavor Drops</span></div>
-                        </div>
-                        <ul class="solution-perks">
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> 100% authentic manufacturer code
-                                verification</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Priority access to newly released vape
-                                hardware &amp; flavors</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Instant credit policy for any factory
-                                defective units</li>
-                        </ul>
-                    </div>
-                    <div class="starter-card">
-                        <div class="starter-card__tag">Turnkey Bundle</div>
-                        <div class="starter-card__media">
-                            <img src="{{ asset('images/p-zigzag-wraps.jpg') }}"
-                                alt="Zig Zag 15CT Variety Pack Counter Display" loading="lazy" />
-                        </div>
-                        <div class="starter-card__content">
-                            <p class="starter-card__cat">Outlet Starter Pack</p>
-                            <h4 class="starter-card__title">Zig Zag Wrap 4/99 15CT Full Flavor Variety Pack</h4>
-                            <p class="starter-card__meta">Includes: Blue, Gold, Grape, Green, Pink, Purple &amp; Sweet
-                                15CT Boxes + Acrylic Counter Merchandiser</p>
-                            <div class="starter-card__pricing">
-                                <div class="price-block"><span class="price-label">Wholesale Cost</span><strong
-                                        class="price-val">$420.00</strong></div>
-                                <div class="price-block price-block--green"><span class="price-label">Est. Retail
-                                        Value</span><strong class="price-val">$899.00</strong></div>
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;">
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #475569;">
+                                    <span>Packaging Unit:</span>
+                                    <strong style="color: #0f172a;">{{ $sol['product']->unit->name ?? 'Case / Pack' }}</strong>
+                                </div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #475569; margin-top: 4px;">
+                                    <span>Availability:</span>
+                                    <strong style="color: #16a34a;">Immediate Route Dispatch</strong>
+                                </div>
                             </div>
-                            <div class="starter-card__footer">
-                                <span class="margin-pill">53.2% Profit Margin</span>
-                                <a href="#account" class="btn btn--primary btn--sm">Order Starter Kit &rarr;</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Panel 4: Independent Grocers -->
-            <div class="solution-panel" id="panel-grocer" role="tabpanel" aria-labelledby="tab-grocer" hidden>
-                <div class="solution-panel__grid">
-                    <div class="solution-info">
-                        <span class="solution-badge">High Volume Bulk Goods</span>
-                        <h3 class="solution-title">Bulk Beverage, Snack &amp; General Merchandise</h3>
-                        <p class="solution-desc">
-                            Streamline your grocery inventory with full case packs on beverages, specialty snack items,
-                            household goods, and automotive emergency products on a single standing truck route.
-                        </p>
-                        <div class="solution-stats">
-                            <div class="sol-stat"><strong>42%</strong><span>Avg. Retail Margin</span></div>
-                            <div class="sol-stat"><strong>Zero</strong><span>Pickup Minimum</span></div>
-                            <div class="sol-stat"><strong>Pallet/Case</strong><span>Tier Discounts</span></div>
-                        </div>
-                        <ul class="solution-perks">
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Tiered case and pallet quantity discount
-                                pricing</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Fresh expiration dates guaranteed on all
-                                food &amp; drinks</li>
-                            <li><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" /></svg> Flex Net 30 payment terms for approved
-                                store accounts</li>
-                        </ul>
-                    </div>
-                    <div class="starter-card">
-                        <div class="starter-card__tag">Turnkey Bundle</div>
-                        <div class="starter-card__media">
-                            <img src="{{ asset('images/p-alfakher-shisha.jpg') }}"
-                                alt="Al Fakher Hookah Tobacco Master Display Bundle" loading="lazy" />
-                        </div>
-                        <div class="starter-card__content">
-                            <p class="starter-card__cat">Grocer Starter Pack</p>
-                            <h4 class="starter-card__title">Al Fakher 50g &amp; 250g Shisha Power Rack Bundle</h4>
-                            <p class="starter-card__meta">Includes: Full Assortment Al Fakher 50g Packs, 250g Tubs &amp;
-                                4-Tier Floor Merchandising Rack</p>
-                            <div class="starter-card__pricing">
-                                <div class="price-block"><span class="price-label">Wholesale Cost</span><strong
-                                        class="price-val">$310.00</strong></div>
-                                <div class="price-block price-block--green"><span class="price-label">Est. Retail
-                                        Value</span><strong class="price-val">$595.00</strong></div>
-                            </div>
-                            <div class="starter-card__footer">
-                                <span class="margin-pill">47.8% Profit Margin</span>
-                                <a href="#account" class="btn btn--primary btn--sm">Order Starter Kit &rarr;</a>
+                            <div class="starter-card__footer" style="padding-top: 4px;">
+                                <a href="{{ route('shop.category', $sol['id']) }}" class="btn btn--primary btn--block" style="text-align: center; text-decoration: none; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 11px;">
+                                    Explore {{ $sol['name'] }} Catalog &rarr;
+                                </a>
                             </div>
                         </div>
                     </div>
+                    @else
+                    <div class="starter-card" style="display:flex; align-items:center; justify-content:center; padding:30px; text-align:center;">
+                        <p style="color:#64748b; font-size:14px;">Contact representative for customized {{ $sol['name'] }} inventory mixes.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -854,35 +734,54 @@
                 </div>
             </div>
 
-            <div class="cta__form-box">
-                @guest('customer')
-                <div class="cta__form-box">
-                    <div class="cta__form-header">
-                        <h3>Quick Trade Access</h3>
-                        <p>Visible pricing for verified retailers only</p>
+                        <div class="cta__form-box" style="background: #ffffff; border-radius: 16px; padding: 32px; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.25); border: 1px solid #d8e4dc;">
+                @customer
+                @php
+                    $activeCust = (auth('customer')->user() && auth('customer')->user()->user_type === 'CUSTOMER') ? auth('customer')->user() : auth('web')->user();
+                @endphp
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #a7f3d0;">
+                        ● Verified Trade Member
                     </div>
-                    <a href="{{ route('register') }}" class="btn btn--primary btn--block">Request Trade Verification</a>
-                    <p class="cta__secure">
-                        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <h3 style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin-bottom: 6px;">
+                        Welcome, {{ $activeCust->name }}!
+                    </h3>
+                    <p style="color: #546b5a; font-size: 13px; margin-bottom: 20px; line-height: 1.5;">
+                        Your trade account is verified &mdash; live wholesale case pricing and order dispatch are active.
+                    </p>
+                    <a href="{{ route('home') }}#deals" class="btn btn--primary btn--block" style="padding: 13px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; text-align: center; text-decoration: none; display: block; margin-bottom: 12px; background: #d99b26; color: #0b2212; border: none; box-shadow: 0 4px 14px rgba(217,155,38,0.35);">
+                        📦 Browse Catalog & Place Order
+                    </a>
+                    <div style="text-align: center; font-size: 12px; color: #546b5a;">
+                        <a href="{{ route('customer.orders.index') }}" style="color: #144523; font-weight: 800; text-decoration: none;">View Past Invoices & Orders &rarr;</a>
+                    </div>
+                </div>
+                @else
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: #fdf6e7; color: #b8801b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #fde68a;">
+                        ⚡ Fast 2-Minute Trade Setup
+                    </div>
+                    <h3 style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin-bottom: 6px;">
+                        Quick Trade Access
+                    </h3>
+                    <p style="color: #546b5a; font-size: 13px; margin-bottom: 20px; line-height: 1.5;">
+                        True wholesale case rates and standing route delivery are visible to approved retailers only.
+                    </p>
+                    <a href="{{ route('register') }}" class="btn btn--primary btn--block" style="padding: 13px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; text-align: center; text-decoration: none; display: block; margin-bottom: 12px; background: #d99b26; color: #0b2212; border: none; box-shadow: 0 4px 14px rgba(217,155,38,0.35);">
+                        ✨ Create Trade Account &rarr;
+                    </a>
+                    <div style="text-align: center; font-size: 12px; color: #546b5a; margin-bottom: 14px;">
+                        Already verified? <a href="{{ route('login') }}" style="color: #144523; font-weight: 800; text-decoration: none;">Sign In to Portal &rarr;</a>
+                    </div>
+                    <p class="cta__secure" style="font-size: 11px; color: #546b5a; display: flex; align-items: center; gap: 6px; border-top: 1px solid #d8e4dc; padding-top: 10px; margin-top: 8px;">
+                        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px; height:14px; color:#144523;">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
                         100% Confidential &amp; Tax Compliant
                     </p>
                 </div>
-                @else
-                <div class="cta__form-box">
-                    <div class="cta__form-header">
-                        <h3>You're All Set!</h3>
-                        <p>Your trade account is active &mdash; live wholesale pricing is unlocked.</p>
-                    </div>
-                    <a href="{{ route('home') }}#deals" class="btn btn--primary btn--block">Browse Catalog</a>
-                    <p class="cta__secure">
-                        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 6 9 17l-5-5" /></svg>
-                        Verified Trade Account
-                    </p>
-                </div>
-                @endguest
+                @endcustomer
             </div>
         </div>
     </div>

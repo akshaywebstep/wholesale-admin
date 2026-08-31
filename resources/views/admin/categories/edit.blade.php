@@ -47,7 +47,7 @@
         <label class="text-sm text-slate-600">Image</label>
         <input type="file" name="image" class="w-full border rounded-lg p-2 mt-1">
         @if($category->image)
-            <img src="{{ asset('storage/' . $category->image) }}" class="w-16 h-16 rounded object-cover mt-2">
+            <img src="{{ $category->image_url }}" class="w-16 h-16 rounded object-cover mt-2" onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
         @endif
         @error('image') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
     </div>

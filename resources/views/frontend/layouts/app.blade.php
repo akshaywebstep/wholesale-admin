@@ -129,7 +129,7 @@
 
                         // Price rendering
                         if (data.is_logged_in) {
-                            qvPriceWrap.innerHTML = `<h3 style="color: #1a8917; margin: 0; font-size: 22px;">₹${data.price} <span style="font-size: 13px; color: #666; font-weight: normal;">/ unit</span></h3>`;
+                            qvPriceWrap.innerHTML = `<h3 style="color: #1a8917; margin: 0; font-size: 22px;">$${data.price} <span style="font-size: 13px; color: #666; font-weight: normal;">/ unit</span></h3>`;
                         } else {
                             qvPriceWrap.innerHTML = `<a href="${data.login_url}" style="color: #d97706; text-decoration: underline; font-size: 14px; font-weight: 600;">Log In To See Price</a>`;
                         }
@@ -138,7 +138,7 @@
                         if (p.price_tiers && p.price_tiers.length > 0 && data.is_logged_in) {
                             let tiersHtml = `<div style="background:#f8f9fa; padding:10px; border-radius:6px; border:1px solid #eee;"><strong>Wholesale Bulk Discounts:</strong><ul style="margin:5px 0 0 18px; padding:0;">`;
                             p.price_tiers.forEach(t => {
-                                tiersHtml += `<li>${t.min_qty} - ${t.max_qty} units: <strong>₹${t.price}</strong></li>`;
+                                tiersHtml += `<li>${t.min_qty} - ${t.max_qty} units: <strong>$${t.price}</strong></li>`;
                             });
                             tiersHtml += `</ul></div>`;
                             qvTiersWrap.innerHTML = tiersHtml;

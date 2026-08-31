@@ -49,16 +49,13 @@
                         @endphp
                         <tr data-cart-id="{{ $item->id }}">
                             <td class="cart-table__product">
-                                @if($item->product && $item->product->images->isNotEmpty())
-                                <img src="{{ asset('storage/' . $item->product->images->first()->image_path) }}"
-                                    alt="{{ $item->product->name }}" width="64" height="64" />
-                                @else
-                                <img src="{{ asset('images/product1.png') }}" alt="" width="64" height="64" />
-                                @endif
+                                <img src="{{ $item->product ? $item->product->featured_image_url : asset('images/product1.png') }}"
+                                    alt="{{ $item->product->name ?? '' }}" width="64" height="64"
+                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
                                 <span>{{ $item->product->name ?? 'Product unavailable' }}</span>
                             </td>
                             <td>{{ $item->product->sku ?? '-' }}</td>
-                            <td class="cart-item-price">₹{{ number_format($price, 2) }}</td>
+                            <td class="cart-item-price">${{ number_format($price, 2) }}</td>
                             <td>
                                 <div class="qty-stepper">
                                     <button type="button" class="qty-btn qty-btn--minus" data-cart-id="{{ $item->id }}"
@@ -69,7 +66,7 @@
                                         aria-label="Increase quantity">+</button>
                                 </div>
                             </td>
-                            <td class="cart-item-line-total">₹{{ number_format($lineTotal, 2) }}</td>
+                            <td class="cart-item-line-total">${{ number_format($lineTotal, 2) }}</td>
                             <td>
                                 <button type="button" class="cart-remove-btn" data-cart-id="{{ $item->id }}"
                                     aria-label="Remove item">
@@ -96,7 +93,7 @@
                 </div>
                 <div class="cart-summary__row cart-summary__row--total">
                     <span>Total</span>
-                    <strong id="cart-grand-total">₹{{ number_format($total, 2) }}</strong>
+                    <strong id="cart-grand-total">${{ number_format($total, 2) }}</strong>
                 </div>
                 <a href="{{ route('checkout.index') }}" class="btn btn--primary btn--block"
                     style="text-align:center; display:block; text-decoration:none;">
@@ -147,8 +144,8 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        row.querySelector('.cart-item-line-total').textContent = '₹' + data.line_total;
-                        document.getElementById('cart-grand-total').textContent = '₹' + data.cart_total;
+                        row.querySelector('.cart-item-line-total').textContent = '$' + data.line_total;
+                        document.getElementById('cart-grand-total').textContent = '$' + data.cart_total;
                         updateHeaderBadge(data.cart_count);
                         updateSummaryCount();
                     }
@@ -170,7 +167,7 @@
                 .then(data => {
                     if (data.success) {
                         row.remove();
-                        document.getElementById('cart-grand-total').textContent = '₹' + data.cart_total;
+                        document.getElementById('cart-grand-total').textContent = '$' + data.cart_total;
                         updateHeaderBadge(data.cart_count);
                         if (data.cart_count === 0) {
                             location.reload();

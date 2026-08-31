@@ -40,7 +40,9 @@ class ShopController extends Controller
 
     public function quickView($id)
     {
-        $customer = Auth::guard('customer')->user();
+        $custUser = Auth::guard('customer')->user();
+        $webUser = Auth::guard('web')->user();
+        $customer = ($custUser && $custUser->user_type === 'CUSTOMER') ? $custUser : (($webUser && $webUser->user_type === 'CUSTOMER') ? $webUser : null);
 
         $product = Product::with([
             'images',
@@ -50,16 +52,14 @@ class ShopController extends Controller
         ])->where('is_active', 1)->findOrFail($id);
 
         $price = $customer ? $product->priceForUser($customer) : null;
-        $isLoggedIn = Auth::guard('customer')->check();
+        $isLoggedIn = (bool) $customer;
 
         return response()->json([
             'success'      => true,
             'product'      => $product,
             'price'        => $price ? number_format($price, 2) : null,
             'is_logged_in' => $isLoggedIn,
-            'image_url'    => $product->images->isNotEmpty()
-                ? asset('storage/' . $product->images->first()->image_path)
-                : asset('images/product1.png'),
+            'image_url'    => $product->featured_image_url,
             'product_url'  => route('shop.product', $product->id),
             'login_url'    => route('login')
         ]);

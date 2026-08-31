@@ -74,17 +74,32 @@ class User extends Authenticatable
         return $this->belongsTo(CustomerGroup::class);
     }
 
-    public function hasPermission(string $panel, string $module, string $action): bool
+    public function hasPermission(string $panelOrModule, string $moduleOrAction, ?string $action = null): bool
     {
+        // Customers never have admin panel access / permissions
+        if ($this->user_type === 'CUSTOMER') {
+            return false;
+        }
+
         if ($this->user_type === 'ADMIN') {
             return true;
+        }
+
+        if ($action === null) {
+            $panel = 'ADMIN';
+            $module = $panelOrModule;
+            $act = $moduleOrAction;
+        } else {
+            $panel = $panelOrModule;
+            $module = $moduleOrAction;
+            $act = $action;
         }
 
         foreach ($this->roles as $role) {
             $has = $role->permissions()
                 ->where('panel', strtoupper($panel))
                 ->where('module', $module)
-                ->where('action', $action)
+                ->where('action', strtoupper($act))
                 ->where('status', 'ACTIVE')
                 ->exists();
 

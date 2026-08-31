@@ -33,4 +33,12 @@ class Category extends Model
             ->where('is_active', true)
             ->count();
     }
+
+    public function getImageUrlAttribute(): string
+    {
+        if ($this->image && file_exists(storage_path('app/public/' . $this->image))) {
+            return asset('storage/' . $this->image);
+        }
+        return asset('images/product1.png');
+    }
 }

@@ -21,13 +21,9 @@
                     @endif
 
                     <a href="{{ route('shop.product', $product->id) }}">
-                        @if($product->images && $product->images->isNotEmpty())
-                            <img src="{{ asset('storage/' . $product->images->first()->image_path) }}"
-                                alt="{{ $product->name }}" width="800" height="800" loading="lazy" />
-                        @else
-                            <img src="{{ asset('images/product1.png') }}" alt="{{ $product->name }}" width="800" height="800"
-                                loading="lazy" />
-                        @endif
+                        <img src="{{ $product->featured_image_url }}"
+                            alt="{{ $product->name }}" width="800" height="800" loading="lazy"
+                            onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
                     </a>
 
                     <!-- Quick View Button -->
@@ -50,12 +46,13 @@
 
                     <!-- Single Clean Dotted Border on Top Only -->
                     <div class="product__price-container" style="border-top: 1px dotted #e5e7eb; border-bottom: none; padding: 10px 0; margin: 8px 0;">
-                        @if(auth('customer')->check())
+                        @customer
                             @php
-                                $userPrice = $product->priceForUser(auth('customer')->user()) ?? $product->base_price;
+                                $activeCust = (auth('customer')->user() && auth('customer')->user()->user_type === 'CUSTOMER') ? auth('customer')->user() : auth('web')->user();
+                                $userPrice = $product->priceForUser($activeCust) ?? $product->base_price;
                             @endphp
                             <p class="product__price" style="border: none; margin: 0;">
-                                ₹{{ number_format($userPrice, 2) }}
+                                ${{ number_format($userPrice, 2) }}
                             </p>
                         @else
                             <a href="{{ route('login') }}" class="product__login-price" style="border: none;">
@@ -67,12 +64,22 @@
                                 </svg>
                                 <span>Log In To See Price</span>
                             </a>
-                        @endif
+                        @endcustomer
                     </div>
 
+                    @customer
                     <a href="{{ route('shop.product', $product->id) }}" class="btn btn--outline btn--block">
                         Add to order
                     </a>
+                    @else
+                    <a href="{{ route('login') }}" class="btn btn--outline btn--block" style="color: #64748b; border-color: #cbd5e1; background: #f8fafc; font-size: 13px; font-weight: 600;">
+                        <svg class="lock-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block; vertical-align:middle; margin-right:4px;">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        Log In To Order
+                    </a>
+                    @endcustomer
                 </div>
             </article>
             @empty
