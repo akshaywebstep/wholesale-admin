@@ -76,12 +76,15 @@ class User extends Authenticatable
 
     public function hasPermission(string $panelOrModule, string $moduleOrAction, ?string $action = null): bool
     {
-        // Customers never have admin panel access / permissions
+        // 1. Customers never have admin panel access / permissions
         if ($this->user_type === 'CUSTOMER') {
             return false;
         }
 
-        if ($this->user_type === 'ADMIN') {
+        // 2. Administrators / Super Admin automatically have ALL permissions
+        if ($this->user_type === 'ADMIN' || $this->roles->contains(function ($role) {
+            return in_array(strtolower(trim($role->name)), ['super admin', 'admin']);
+        })) {
             return true;
         }
 

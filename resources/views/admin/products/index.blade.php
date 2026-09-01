@@ -139,11 +139,11 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 flex flex-col overflow-hidden group">
 
             <!-- Card Top: Image & Status Badges -->
-            <div class="relative h-56 bg-slate-50 border-b border-slate-100 overflow-hidden flex items-center justify-center p-3">
+            <div class="relative h-60 bg-slate-50/70 border-b border-slate-100 overflow-hidden flex items-center justify-center p-3">
 
                 <!-- Stock Status Badge (Top Left) -->
-                <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-bold backdrop-blur-md shadow-sm z-10 pointer-events-none 
-                    {{ $totalStock > 10 ? 'bg-emerald-500/90 text-white' : ($totalStock > 0 ? 'bg-amber-500/90 text-white' : 'bg-rose-500/90 text-white') }}">
+                <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full text-[10px] font-bold shadow-sm z-30 pointer-events-none 
+                    {{ $totalStock > 10 ? 'bg-emerald-600 text-white shadow-emerald-500/20' : ($totalStock > 0 ? 'bg-amber-600 text-white shadow-amber-500/20' : 'bg-rose-600 text-white shadow-rose-500/20') }}">
                     @if($totalStock > 10)
                         ● In Stock ({{ $totalStock }})
                     @elseif($totalStock > 0)
@@ -154,16 +154,64 @@
                 </span>
 
                 <!-- Active/Inactive Badge (Top Right) -->
-                <span class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase backdrop-blur-md shadow-sm z-10 pointer-events-none {{ $product->is_active ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200' }}">
+                <span class="absolute top-2.5 right-2.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase shadow-sm z-30 pointer-events-none {{ $product->is_active ? 'bg-white text-emerald-700 border border-emerald-300' : 'bg-white text-slate-600 border border-slate-300' }}">
                     {{ $product->is_active ? 'Active' : 'Inactive' }}
                 </span>
 
-                <!-- Clickable Image directly navigating to Show Preview -->
-                <a href="{{ route('admin.products.show', $product) }}" class="w-full h-full flex items-center justify-center">
+                <!-- Clickable Image / Multi-Image Smooth Slider -->
+                @if($product->images && $product->images->count() > 1)
+                <div class="product-card-slider group/slider relative w-full h-full flex items-center justify-center pt-6 pb-2 overflow-hidden" 
+                     data-slider 
+                     data-current="0" 
+                     data-total="{{ $product->images->count() }}">
+                    
+                    <a href="{{ route('admin.products.show', $product) }}" class="slider-viewport w-full h-full relative overflow-hidden block">
+                        <div class="slider-track flex w-full h-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.3,1)] will-change-transform">
+                            @foreach($product->images as $idx => $img)
+                            <div class="slider-slide flex-shrink-0 w-full h-full flex items-center justify-center p-1">
+                                <img src="{{ asset('storage/' . $img->image_path) }}" 
+                                     alt="{{ $product->name }}"
+                                     class="max-w-full max-h-44 object-contain transition-transform duration-500 group-hover:scale-105"
+                                     onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                            </div>
+                            @endforeach
+                        </div>
+                    </a>
+
+                    <!-- Prev Arrow Button -->
+                    <button type="button" 
+                            class="slider-arrow slider-prev absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-slate-950 shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-all duration-300 z-20 cursor-pointer border border-slate-200/90 hover:scale-110 active:scale-95" 
+                            aria-label="Previous Image"
+                            onclick="event.preventDefault(); event.stopPropagation(); moveAdminCardSlide(this, -1);">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+
+                    <!-- Next Arrow Button -->
+                    <button type="button" 
+                            class="slider-arrow slider-next absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/95 hover:bg-white text-slate-700 hover:text-slate-950 shadow-md flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition-all duration-300 z-20 cursor-pointer border border-slate-200/90 hover:scale-110 active:scale-95" 
+                            aria-label="Next Image"
+                            onclick="event.preventDefault(); event.stopPropagation(); moveAdminCardSlide(this, 1);">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+
+                    <!-- Slide Indicator Dots -->
+                    <div class="slider-dots absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20 pointer-events-none bg-slate-900/60 backdrop-blur-xs px-2 py-0.5 rounded-full shadow-xs">
+                        @foreach($product->images as $idx => $img)
+                        <span class="slide-dot h-1.5 rounded-full transition-all duration-500 ease-out {{ $idx === 0 ? 'bg-white w-4' : 'bg-white/40 w-1.5' }}" data-dot-index="{{ $idx }}"></span>
+                        @endforeach
+                    </div>
+                </div>
+                @else
+                <a href="{{ route('admin.products.show', $product) }}" class="w-full h-full flex items-center justify-center pt-6 pb-2">
                     <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}"
-                        class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                        class="max-w-full max-h-44 object-contain group-hover:scale-105 transition-transform duration-300"
                         onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
                 </a>
+                @endif
             </div>
 
             <!-- Card Body -->
@@ -440,6 +488,64 @@ function setProductViewMode(mode) {
 document.addEventListener('DOMContentLoaded', () => {
     const savedMode = localStorage.getItem('admin_product_view') || 'cards';
     setProductViewMode(savedMode);
+    initProductCardSliders();
 });
+
+// ==============================================
+// MULTI-IMAGE SMOOTH TRACK SLIDER (AUTO & ARROWS)
+// ==============================================
+function moveAdminCardSlide(btnOrSlider, direction, targetIdx = null) {
+    const slider = btnOrSlider.hasAttribute('data-slider') ? btnOrSlider : btnOrSlider.closest('[data-slider]');
+    if (!slider) return;
+
+    const track = slider.querySelector('.slider-track');
+    if (!track) return;
+
+    const total = parseInt(slider.dataset.total || '1', 10);
+    if (total <= 1) return;
+
+    let current = parseInt(slider.dataset.current || '0', 10);
+    let next = targetIdx !== null ? targetIdx : (current + direction + total) % total;
+
+    slider.dataset.current = next;
+    track.style.transform = `translate3d(-${next * 100}%, 0, 0)`;
+
+    const dots = slider.querySelectorAll('.slide-dot');
+    dots.forEach((dot, i) => {
+        if (i === next) {
+            dot.className = 'slide-dot h-1.5 rounded-full transition-all duration-500 ease-out bg-white w-4';
+        } else {
+            dot.className = 'slide-dot h-1.5 rounded-full transition-all duration-500 ease-out bg-white/40 w-1.5';
+        }
+    });
+}
+
+function initProductCardSliders() {
+    const sliders = document.querySelectorAll('[data-slider]');
+    sliders.forEach((slider, sliderIdx) => {
+        const total = parseInt(slider.dataset.total || '1', 10);
+        if (total <= 1) return;
+
+        let intervalId = null;
+
+        const startAutoSlide = () => {
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(() => {
+                moveAdminCardSlide(slider, 1);
+            }, 3800);
+        };
+
+        const stopAutoSlide = () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+
+        // Smooth pause on mouse hover so user can easily view or click controls
+        slider.addEventListener('mouseenter', stopAutoSlide);
+        slider.addEventListener('mouseleave', startAutoSlide);
+
+        // Stagger initial delays across cards so cards transition organically
+        setTimeout(startAutoSlide, ((sliderIdx % 4) + 1) * 900);
+    });
+}
 </script>
 @endsection

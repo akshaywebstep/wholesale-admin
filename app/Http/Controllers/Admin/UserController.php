@@ -65,7 +65,9 @@ class UserController extends Controller
         $customerCount = User::where('user_type', 'CUSTOMER')->count();
         $pendingCount  = User::where('status', 'PENDING')->count();
 
-        $roles = Role::where('status', 'ACTIVE')->where('name', '!=', 'Customer')->get();
+        $roles = Role::where('status', 'ACTIVE')
+            ->whereNotIn('name', ['Super Admin', 'super admin', 'SUPER ADMIN', 'Admin', 'admin', 'Customer', 'customer'])
+            ->get();
 
         return view('admin.users.index', compact(
             'users',
@@ -85,7 +87,9 @@ class UserController extends Controller
     {
         $countries = Country::where('status', 'ACTIVE')->get();
         $customerGroups = CustomerGroup::where('status', 'ACTIVE')->get();
-        $roles = Role::where('status', 'ACTIVE')->where('name', '!=', 'Customer')->get();
+        $roles = Role::where('status', 'ACTIVE')
+            ->whereNotIn('name', ['Super Admin', 'super admin', 'SUPER ADMIN', 'Admin', 'admin', 'Customer', 'customer'])
+            ->get();
 
         return view('admin.users.create', compact('countries', 'customerGroups', 'roles'));
     }
@@ -102,7 +106,7 @@ class UserController extends Controller
             'email'     => 'required|email|max:255|unique:users,email',
             'phone'     => 'nullable|string|max:25',
             'password'  => 'required|string|min:6',
-            'user_type' => 'required|in:ADMIN,STAFF,CUSTOMER',
+            'user_type' => 'required|in:STAFF,CUSTOMER',
             'status'    => 'required|in:ACTIVE,PENDING,INACTIVE,REJECTED',
         ];
 
@@ -115,7 +119,16 @@ class UserController extends Controller
             $rules['state_id']          = 'nullable|exists:states,id';
             $rules['city_id']           = 'nullable|exists:cities,id';
         } else {
-            $rules['role_id']           = 'required|exists:roles,id';
+            $rules['role_id'] = [
+                'required',
+                'exists:roles,id',
+                function ($attribute, $value, $fail) {
+                    $role = Role::find($value);
+                    if ($role && in_array(strtolower(trim($role->name)), ['super admin', 'admin', 'customer'])) {
+                        $fail("The '{$role->name}' role is reserved and cannot be assigned.");
+                    }
+                }
+            ];
         }
 
         $validated = $request->validate($rules);
@@ -154,7 +167,9 @@ class UserController extends Controller
         $customerGroups = CustomerGroup::where('status', 'ACTIVE')->get();
         $assignedRoleId = $user->roles()->first()?->id;
 
-        $roles = Role::where('status', 'ACTIVE')->where('name', '!=', 'Customer')->get();
+        $roles = Role::where('status', 'ACTIVE')
+            ->whereNotIn('name', ['Super Admin', 'super admin', 'SUPER ADMIN', 'Admin', 'admin', 'Customer', 'customer'])
+            ->get();
 
         return view('admin.users.edit', compact(
             'user',
@@ -172,7 +187,9 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $userType = $request->input('user_type', $user->user_type);
+        // Enforce immutable user_type on update (cannot be modified)
+        $userType = $user->user_type;
+        $request->merge(['user_type' => $userType]);
 
         $rules = [
             'name'      => 'required|string|max:255',
@@ -192,7 +209,18 @@ class UserController extends Controller
             $rules['state_id']          = 'nullable|exists:states,id';
             $rules['city_id']           = 'nullable|exists:cities,id';
         } else {
-            $rules['role_id']           = 'nullable|exists:roles,id';
+            $rules['role_id'] = [
+                'nullable',
+                'exists:roles,id',
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $role = Role::find($value);
+                        if ($role && in_array(strtolower(trim($role->name)), ['super admin', 'admin', 'customer'])) {
+                            $fail("The '{$role->name}' role is reserved and cannot be assigned.");
+                        }
+                    }
+                }
+            ];
         }
 
         $validated = $request->validate($rules);
@@ -209,11 +237,22 @@ class UserController extends Controller
 
         $user->update($validated);
 
+        $isSuperAdmin = $user->user_type === 'ADMIN' || $user->id === 1 || $user->roles->contains(function ($role) {
+            return in_array(strtolower(trim($role->name)), ['super admin', 'admin']);
+        });
+
+        $currentUser = auth()->user();
+        $isLoggedInManager = $currentUser && $currentUser->roles->contains(function ($role) {
+            return in_array(strtolower(trim($role->name)), ['manager', 'store manager']);
+        }) && $currentUser->user_type !== 'ADMIN' && $currentUser->id !== 1;
+
         if ($userType === 'CUSTOMER') {
             $customerRole = Role::where('name', 'Customer')->first();
             if ($customerRole) {
                 $user->roles()->sync([$customerRole->id]);
             }
+        } elseif ($isSuperAdmin || $isLoggedInManager) {
+            // Super Admin role and Manager role modifications are locked - keep existing roles intact
         } elseif ($roleId) {
             $user->roles()->sync([$roleId]);
         }

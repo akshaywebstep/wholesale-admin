@@ -10,19 +10,23 @@ use Illuminate\Http\Request;
 class RoleController extends Controller
 {
     /**
-     * Roles & Privileges Directory
+     * Roles & Privileges Directory (Staff Roles Only)
      */
     public function index(Request $request)
     {
-        $roles = Role::where('name', '!=', 'Customer')
+        $roles = Role::whereNotIn('name', ['Super Admin', 'super admin', 'SUPER ADMIN', 'Admin', 'admin', 'Customer', 'customer'])
             ->withCount('users')
-            ->with(['permissions'])
+            ->with(['permissions', 'users' => function($q) {
+                $q->take(4);
+            }])
             ->latest('id')
-            ->paginate(15);
+            ->paginate(12);
 
         $totalPermissions = Permission::count();
+        $totalStaffRolesCount = Role::whereNotIn('name', ['Super Admin', 'super admin', 'SUPER ADMIN', 'Admin', 'admin', 'Customer', 'customer'])->count();
+        $activeStaffRolesCount = Role::whereNotIn('name', ['Super Admin', 'super admin', 'SUPER ADMIN', 'Admin', 'admin', 'Customer', 'customer'])->where('status', 'ACTIVE')->count();
 
-        return view('admin.roles.index', compact('roles', 'totalPermissions'));
+        return view('admin.roles.index', compact('roles', 'totalPermissions', 'totalStaffRolesCount', 'activeStaffRolesCount'));
     }
 
     /**
@@ -38,8 +42,29 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->has('name')) {
+            $request->merge(['name' => trim($request->name)]);
+        }
+
         $validated = $request->validate([
-            'name'   => 'required|string|max:255|unique:roles,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:roles,name',
+                function ($attribute, $value, $fail) {
+                    $normalized = strtolower(trim($value));
+                    if (in_array($normalized, ['super admin', 'admin', 'customer'])) {
+                        $fail("The role name '{$value}' is reserved by the system and cannot be created.");
+                        return;
+                    }
+                    // Case-insensitive duplicate check
+                    $exists = Role::whereRaw('LOWER(name) = ?', [$normalized])->exists();
+                    if ($exists) {
+                        $fail("A role with the name '{$value}' already exists.");
+                    }
+                }
+            ],
             'status' => 'required|in:ACTIVE,INACTIVE,active,inactive',
         ]);
 
@@ -56,6 +81,11 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
+        if (in_array(strtolower(trim($role->name)), ['super admin', 'customer'])) {
+            return redirect()->route('admin.roles.index')
+                ->with('error', "System role '{$role->name}' is protected and cannot be edited.");
+        }
+
         return view('admin.roles.edit', compact('role'));
     }
 
@@ -64,8 +94,36 @@ class RoleController extends Controller
      */
     public function update(Request $request, Role $role)
     {
+        if (in_array(strtolower(trim($role->name)), ['super admin', 'customer'])) {
+            return redirect()->route('admin.roles.index')
+                ->with('error', "System role '{$role->name}' is protected and cannot be modified.");
+        }
+
+        if ($request->has('name')) {
+            $request->merge(['name' => trim($request->name)]);
+        }
+
         $validated = $request->validate([
-            'name'   => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:roles,name,' . $role->id,
+                function ($attribute, $value, $fail) use ($role) {
+                    $normalized = strtolower(trim($value));
+                    if (in_array($normalized, ['super admin', 'admin', 'customer'])) {
+                        $fail("The role name '{$value}' is reserved by the system.");
+                        return;
+                    }
+                    // Case-insensitive duplicate check against other roles
+                    $exists = Role::where('id', '!=', $role->id)
+                        ->whereRaw('LOWER(name) = ?', [$normalized])
+                        ->exists();
+                    if ($exists) {
+                        $fail("A role with the name '{$value}' already exists.");
+                    }
+                }
+            ],
             'status' => 'required|in:ACTIVE,INACTIVE,active,inactive',
         ]);
 

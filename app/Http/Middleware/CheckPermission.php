@@ -15,10 +15,14 @@ class CheckPermission
 
         $user = auth()->guard('web')->user();
 
-        if ($user->user_type === 'ADMIN') {
+        // 1. Super Admin / Admin has ALL permissions (complete bypass)
+        if ($user->user_type === 'ADMIN' || $user->roles->contains(function ($role) {
+            return in_array(strtolower(trim($role->name)), ['super admin', 'admin']);
+        })) {
             return $next($request);
         }
 
+        // 2. Staff / Member permissions check
         if ($user->user_type === 'STAFF') {
             if (method_exists($user, 'hasPermission') && $user->hasPermission('ADMIN', $module, $action)) {
                 return $next($request);

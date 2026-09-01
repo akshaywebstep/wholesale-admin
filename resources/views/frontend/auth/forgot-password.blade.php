@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wholesale Trade Sign In | Carolina Prime Distributors</title>
+    <title>Forgot Password | Carolina Prime Wholesale</title>
     
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,29 +27,25 @@
 
             <div class="brand-hero-content">
                 <div class="brand-pill">
-                    <span>⚡ B2B Verified Trade Portal</span>
+                    <span>🔐 Secure Account Recovery</span>
                 </div>
-                <h1>Direct Wholesale Supply <span>Before You Open</span></h1>
+                <h1>Reset Your <span>Wholesale Access</span></h1>
                 <p>
-                    Access 15,000+ top-selling wholesale SKUs across vape, hookah, beverages, confectionery, and general c-store merchandise.
+                    Enter your authorized wholesale business email address. We will send you a secure link to safely set a new password for your trade portal account.
                 </p>
 
                 <ul class="perks-list">
                     <li>
                         <span class="perks-icon">✓</span>
-                        <span>Locked tier wholesale pricing & case rate discounts</span>
+                        <span>Encrypted one-time secure password reset links</span>
                     </li>
                     <li>
                         <span class="perks-icon">✓</span>
-                        <span>Free next-day route delivery across the Carolinas</span>
+                        <span>Instant delivery to your registered business email</span>
                     </li>
                     <li>
                         <span class="perks-icon">✓</span>
-                        <span>Zero minimum order pickup at Garner, NC Master Hub</span>
-                    </li>
-                    <li>
-                        <span class="perks-icon">✓</span>
-                        <span>Instant invoice generation & Net 30 credit applications</span>
+                        <span>Full protection for your wholesale pricing tiers & credit</span>
                     </li>
                 </ul>
             </div>
@@ -60,37 +56,37 @@
             </div>
         </div>
 
-        <!-- Right Login Form Pane -->
+        <!-- Right Form Pane -->
         <div class="portal-form-pane">
             <div class="form-container">
                 <div class="form-header">
-                    <h2>Trade Sign In</h2>
-                    <p>Enter your authorized wholesale business credentials.</p>
+                    <h2>Forgot Password</h2>
+                    <p>Enter your business email address and we'll send you a password reset link.</p>
                 </div>
 
                 <!-- Flash Alerts -->
                 @if(session('success'))
                 <div class="alert-banner alert-banner--success">
-                    <span>✓</span>
+                    <span style="font-weight: bold; font-size: 16px;">✓</span>
                     <span>{{ session('success') }}</span>
                 </div>
                 @endif
 
                 @if(session('error'))
                 <div class="alert-banner alert-banner--error">
-                    <span>⚠</span>
+                    <span style="font-weight: bold; font-size: 16px;">⚠</span>
                     <span>{{ session('error') }}</span>
                 </div>
                 @endif
 
                 @if($errors->any())
                 <div class="alert-banner alert-banner--error">
-                    <span>⚠</span>
+                    <span style="font-weight: bold; font-size: 16px;">⚠</span>
                     <span>{{ $errors->first() }}</span>
                 </div>
                 @endif
 
-                <form method="POST" action="{{ route('login.submit') }}">
+                <form method="POST" action="{{ route('password.email') }}">
                     @csrf
 
                     <div class="input-group">
@@ -99,33 +95,14 @@
                             value="{{ old('email') }}" required autofocus placeholder="buyer@retailstore.com" />
                     </div>
 
-                    <div class="input-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <label for="password" style="margin-bottom: 0;">Password</label>
-                            <a href="{{ route('password.request') }}" style="font-size: 12px; color: #2563eb; text-decoration: none; font-weight: 600;">Forgot Password?</a>
-                        </div>
-                        <input type="password" name="password" id="password" class="input-control"
-                            required placeholder="••••••••" />
-                    </div>
-
-                    <div class="form-row-between">
-                        <label>
-                            <input type="checkbox" name="remember"> Keep me signed in
-                        </label>
-                        <a href="{{ route('register') }}">Need access?</a>
-                    </div>
-
                     <button type="submit" class="btn-portal-submit">
-                        Sign In to Wholesale Portal &rarr;
+                        Send Password Reset Link &rarr;
                     </button>
                 </form>
 
-                <!-- New Customer Registration Prompt -->
-                <div class="register-box">
-                    <h4>New Retailer or Wholesale Buyer?</h4>
-                    <p>Submit your trade application in under 2 minutes to unlock locked bulk pricing.</p>
-                    <a href="{{ route('register') }}" class="btn-portal-register">
-                        ✨ Create Trade / Wholesale Account &rarr;
+                <div class="back-box">
+                    <a href="{{ route('login') }}">
+                        &larr; Remember your password? Sign In
                     </a>
                 </div>
 

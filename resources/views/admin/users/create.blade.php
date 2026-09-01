@@ -206,22 +206,6 @@
                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
                         </div>
 
-                        <!-- Customer Tier Group -->
-                        <div class="sm:col-span-2">
-                            <label for="inputGroup" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Wholesale Customer Tier / Group
-                            </label>
-                            <select name="customer_group_id" id="inputGroup"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
-                                <option value="">-- Standard Wholesale Buyer --</option>
-                                @foreach($customerGroups as $group)
-                                <option value="{{ $group->id }}" {{ old('customer_group_id') == $group->id ? 'selected' : '' }}>
-                                    {{ $group->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         <!-- Physical Address -->
                         <div class="sm:col-span-2">
                             <label for="inputAddress" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
@@ -300,6 +284,7 @@ function toggleUserTypeForm(type) {
     const previewRoleBadge = document.getElementById('previewRoleBadge');
 
     if (type === 'STAFF') {
+        document.getElementById('typeStaff').checked = true;
         sectionStaff.classList.remove('hidden');
         sectionCustomer.classList.add('hidden');
         cardStaff.className = 'relative flex items-start p-4 rounded-xl border-2 border-blue-500 bg-blue-50/20 cursor-pointer transition-all user-type-card';
@@ -308,6 +293,7 @@ function toggleUserTypeForm(type) {
         previewTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200';
         previewRoleBadge.classList.remove('hidden');
     } else {
+        document.getElementById('typeCustomer').checked = true;
         sectionStaff.classList.add('hidden');
         sectionCustomer.classList.remove('hidden');
         cardCustomer.className = 'relative flex items-start p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/20 cursor-pointer transition-all user-type-card';
@@ -315,6 +301,7 @@ function toggleUserTypeForm(type) {
         previewTypeBadge.textContent = '🏢 B2B Customer';
         previewTypeBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
         previewRoleBadge.classList.add('hidden');
+        if (inputRole) inputRole.value = '';
     }
 }
 
@@ -347,10 +334,15 @@ document.addEventListener('DOMContentLoaded', () => {
         previewPhone.textContent = e.target.value.trim() || '+91 00000 00000';
     });
 
+    // When role is selected, automatically set Account Type to STAFF and activate staff mode
     inputRole?.addEventListener('change', (e) => {
-        const opt = e.target.selectedOptions[0];
-        const roleName = opt ? opt.getAttribute('data-name') : 'No Role';
-        previewRoleBadge.textContent = 'Role: ' + (roleName || 'Unassigned');
+        if (e.target.value) {
+            toggleUserTypeForm('STAFF');
+            const opt = e.target.selectedOptions[0];
+            const roleName = opt ? opt.getAttribute('data-name') : 'No Role';
+            previewRoleBadge.textContent = 'Role: ' + (roleName || 'Unassigned');
+            previewRoleBadge.classList.remove('hidden');
+        }
     });
 });
 </script>

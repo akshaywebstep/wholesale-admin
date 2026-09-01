@@ -26,14 +26,15 @@
             <img src="{{ asset('images/logo.png') }}" alt="Carolina Prime Distributors Logo">
         </a>
 
-        <form class="search" role="search" onsubmit="return false">
+        <form class="search" role="search" action="{{ route('shop.search') }}" method="GET" style="position: relative;">
             <svg class="i search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="11" cy="11" r="6.5" />
                 <path d="m16 16 4.5 4.5" /></svg>
             <label class="sr-only" for="q">Search products</label>
-            <input id="q" type="search" placeholder="Search 15,000+ items, brands or SKUs" />
+            <input id="q" name="q" type="search" value="{{ request('q') }}" placeholder="Search 15,000+ items, brands or SKUs" autocomplete="off" />
             <button type="submit" class="search__btn">SEARCH</button>
+            <div id="search-dropdown" class="search-dropdown" style="display: none;"></div>
         </form>
 
         <div class="header__actions">
@@ -42,6 +43,12 @@
                 $customer = auth()->guard('customer')->user();
                 $cartCount = \App\Models\Cart::where('user_id', $customer->id)->count();
             @endphp
+            <!-- Quick Order Button (Only for Logged-In Customer) -->
+            <a class="btn btn--sm" href="{{ route('shop.quick-order.index') }}"
+                style="background: #e8f0ea; color: #144523; border: 1.5px solid #c2d8c8; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                <span style="color: #d97706;">⚡</span>
+                <span class="btn__text">Quick Order</span>
+            </a>
             <!-- Cart Button -->
             <a class="btn btn--cart btn--sm" href="{{ route('cart.index') }}" aria-label="Cart">
                 <svg class="i" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"

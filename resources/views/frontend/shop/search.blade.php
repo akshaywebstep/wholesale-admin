@@ -1,15 +1,29 @@
 @extends('frontend.layouts.app')
 
-@section('title', $category->name . ' — Carolina Prime Distributors')
+@section('title', ($query ? 'Search: "' . $query . '"' : 'Search Products') . ' — Carolina Prime Distributors')
 
 @section('content')
 <section class="section">
     <div class="container">
-        <header class="section__head">
+        <header class="section__head" style="margin-bottom: 24px;">
             <div>
-                <p class="eyebrow">Shop by department</p>
-                <h2 class="heading">{{ $category->name }}</h2>
+                <p class="eyebrow">Wholesale Catalog Search</p>
+                <h1 class="heading">
+                    @if(!empty($query))
+                        Search Results for <span style="color: var(--orange-600, #b8801b);">"{{ $query }}"</span>
+                    @else
+                        All Wholesale Products
+                    @endif
+                </h1>
+                <p class="section__sub">
+                    Showing {{ $products->total() }} {{ \Illuminate\Support\Str::plural('product', $products->total()) }} matching your wholesale search query.
+                </p>
             </div>
+            @if(!empty($query))
+            <a class="textlink" href="{{ route('shop.search') }}">
+                Clear Search <span aria-hidden="true">&times;</span>
+            </a>
+            @endif
         </header>
 
         <div class="products" id="product-grid">
@@ -56,12 +70,11 @@
                 </div>
 
                 <div class="product__body">
-                    <p class="product__pack">{{ $category->name }}</p>
+                    <p class="product__pack">{{ $product->category->name ?? 'Wholesale Supply' }}</p>
                     <a href="{{ route('shop.product', $product->id) }}" style="text-decoration: none; color: inherit;">
                         <h3 class="product__name">{{ $product->name }}</h3>
                     </a>
 
-                    <!-- Dotted line fix: border none & clean spacing -->
                     <p class="product__meta" style="border: none; padding-bottom: 0; margin-bottom: 6px;">
                         SKU {{ $product->sku ?? '-' }} &middot;
                         <span class="{{ $product->is_active ? 'text-success' : 'text-danger' }}">
@@ -69,7 +82,7 @@
                         </span>
                     </p>
 
-                    <!-- Single Clean Dotted Border on Top Only -->
+                    <!-- Price Container -->
                     <div class="product__price-container" style="border-top: 1px dotted #e5e7eb; border-bottom: none; padding: 10px 0; margin: 8px 0;">
                         @customer
                             @php
@@ -108,14 +121,28 @@
                 </div>
             </article>
             @empty
-            <div class="products__empty">
-                <p>No products available in this category.</p>
+            <div class="products__empty" style="grid-column: 1 / -1; padding: 60px 20px; text-align: center; background: #f8fafc; border: 1.5px dashed #cbd5e1; border-radius: 12px; margin: 20px 0;">
+                <div style="font-size: 40px; margin-bottom: 12px;">🔍</div>
+                <h3 style="font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin-bottom: 8px;">
+                    No Wholesale Products Found
+                </h3>
+                <p style="color: #64748b; font-size: 14px; max-width: 480px; margin: 0 auto 20px;">
+                    We couldn't find any items matching <strong>"{{ $query }}"</strong>. Try searching by SKU, brand name, or broader terms like "vape", "shisha", or "e-liquid".
+                </p>
+                <div style="display: inline-flex; gap: 12px;">
+                    <a href="{{ route('home') }}" class="btn btn--primary" style="padding: 10px 20px; font-size: 13px;">
+                        &larr; Back to Home
+                    </a>
+                    <a href="{{ route('shop.search') }}" class="btn btn--ghost" style="padding: 10px 20px; font-size: 13px; color: #0f172a; border: 1px solid #cbd5e1;">
+                        Browse Full Catalog
+                    </a>
+                </div>
             </div>
             @endforelse
         </div>
 
         @if($products->hasPages())
-        <div class="mt-6">
+        <div class="mt-6" style="margin-top: 32px; display: flex; justify-content: center;">
             {{ $products->links() }}
         </div>
         @endif

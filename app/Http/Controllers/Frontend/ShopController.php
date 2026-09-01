@@ -7,11 +7,95 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\Invoice;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ShopController extends Controller
 {
+    /**
+     * Dedicated Search Results Page
+     */
+    public function search(Request $request)
+    {
+        $query = trim($request->get('q', ''));
+
+        $productsQuery = Product::with(['images', 'category', 'priceTiers'])
+            ->where('is_active', true);
+
+        if (!empty($query)) {
+            $productsQuery->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('sku', 'like', "%{$query}%")
+                  ->orWhere('description', 'like', "%{$query}%")
+                  ->orWhereHas('category', function ($catQ) use ($query) {
+                      $catQ->where('name', 'like', "%{$query}%");
+                  });
+            });
+        }
+
+        $products = $productsQuery->latest()->paginate(20)->withQueryString();
+
+        return view('frontend.shop.search', compact('products', 'query'));
+    }
+
+    /**
+     * Instant Live Autocomplete (JSON API)
+     */
+    public function autocomplete(Request $request)
+    {
+        $query = trim($request->get('q', ''));
+
+        if (strlen($query) < 2) {
+            return response()->json([
+                'success' => true,
+                'total'   => 0,
+                'items'   => [],
+            ]);
+        }
+
+        $custUser = Auth::guard('customer')->user();
+        $webUser = Auth::guard('web')->user();
+        $customer = ($custUser && $custUser->user_type === 'CUSTOMER') ? $custUser : (($webUser && $webUser->user_type === 'CUSTOMER') ? $webUser : null);
+
+        $productsQuery = Product::with(['images', 'category', 'priceTiers'])
+            ->where('is_active', true)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('sku', 'like', "%{$query}%")
+                  ->orWhere('description', 'like', "%{$query}%")
+                  ->orWhereHas('category', function ($catQ) use ($query) {
+                      $catQ->where('name', 'like', "%{$query}%");
+                  });
+            });
+
+        $total = $productsQuery->count();
+        $products = $productsQuery->latest()->take(6)->get();
+
+        $items = $products->map(function ($product) use ($customer) {
+            $price = $customer ? $product->priceForUser($customer) : null;
+
+            return [
+                'id'           => $product->id,
+                'name'         => $product->name,
+                'sku'          => $product->sku,
+                'category'     => $product->category->name ?? '',
+                'image_url'    => $product->featured_image_url,
+                'url'          => route('shop.product', $product->id),
+                'price'        => $price !== null ? '$' . number_format($price, 2) : null,
+                'is_logged_in' => (bool) $customer,
+                'is_active'    => (bool) $product->is_active,
+            ];
+        });
+
+        return response()->json([
+            'success'  => true,
+            'total'    => $total,
+            'view_all' => route('shop.search', ['q' => $query]),
+            'items'    => $items,
+        ]);
+    }
+
     public function category(Category $category)
     {
         $categoryIds = $category->children()->pluck('id')->push($category->id);

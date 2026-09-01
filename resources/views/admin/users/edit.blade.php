@@ -65,31 +65,46 @@
             <!-- LEFT COLUMN: Account Configuration Forms (8 Cols) -->
             <div class="lg:col-span-8 space-y-6">
 
-                <!-- CARD 1: Account Type Selection -->
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
-                    <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider border-b border-slate-100 pb-2.5">
-                        1. Account Type & Access Classification
-                    </h2>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <label class="relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all user-type-card {{ old('user_type', $user->user_type) !== 'CUSTOMER' ? 'border-blue-500 bg-blue-50/20' : 'border-slate-200' }}" id="cardStaff">
-                            <input type="radio" name="user_type" value="{{ $user->user_type === 'ADMIN' ? 'ADMIN' : 'STAFF' }}" {{ $user->user_type !== 'CUSTOMER' ? 'checked' : '' }}
-                                class="mt-1 w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500" onchange="toggleUserTypeForm('STAFF')">
-                            <div class="ml-3">
-                                <span class="block text-sm font-bold text-slate-900">🛡️ Internal Staff Member</span>
-                                <span class="block text-[11px] text-slate-500 mt-0.5">Company employees, warehouse operators, and managers.</span>
-                            </div>
-                        </label>
-
-                        <label class="relative flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all user-type-card {{ old('user_type', $user->user_type) === 'CUSTOMER' ? 'border-emerald-500 bg-emerald-50/20' : 'border-slate-200' }}" id="cardCustomer">
-                            <input type="radio" name="user_type" value="CUSTOMER" {{ old('user_type', $user->user_type) === 'CUSTOMER' ? 'checked' : '' }}
-                                class="mt-1 w-4 h-4 text-emerald-600 border-slate-300 focus:ring-emerald-500" onchange="toggleUserTypeForm('CUSTOMER')">
-                            <div class="ml-3">
-                                <span class="block text-sm font-bold text-slate-900">🏢 B2B Wholesale Customer</span>
-                                <span class="block text-[11px] text-slate-500 mt-0.5">Smoke shop retailers, convenience stores, and B2B buyers.</span>
-                            </div>
-                        </label>
+                <!-- CARD 1: Account Type (Locked / Non-Editable on Update) -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                        <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                            1. Account Type & Access Classification
+                        </h2>
+                        <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                            🔒 Immutable Account Type
+                        </span>
                     </div>
+
+                    <input type="hidden" name="user_type" value="{{ $user->user_type }}">
+
+                    @if($user->user_type === 'CUSTOMER')
+                    <div class="flex items-center gap-3.5 p-4 rounded-xl border border-emerald-200 bg-emerald-50/40">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-sm shadow-emerald-500/20">
+                            🏢
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <span>B2B Wholesale Customer Account</span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">Trade Buyer</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">Wholesale store retailer purchasing at quantity volume pricing.</p>
+                        </div>
+                    </div>
+                    @else
+                    <div class="flex items-center gap-3.5 p-4 rounded-xl border border-blue-200 bg-blue-50/40">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg font-bold shrink-0 shadow-sm shadow-blue-500/20">
+                            🛡️
+                        </div>
+                        <div>
+                            <div class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <span>Internal Staff Member</span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800">{{ $user->user_type === 'ADMIN' ? 'Administrator' : 'Staff Member' }}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-0.5">Company employee with departmental role privileges.</p>
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- CARD 2: Basic Identity & Credentials -->
@@ -153,17 +168,70 @@
                     </div>
                 </div>
 
+                @php
+                    $isSuperAdminUser = $user->user_type === 'ADMIN' || $user->id === 1 || $user->roles->contains(function ($role) {
+                        return in_array(strtolower(trim($role->name)), ['super admin', 'admin']);
+                    });
+
+                    $isManagerUser = $user->roles->contains(function ($role) {
+                        return in_array(strtolower(trim($role->name)), ['manager', 'store manager']);
+                    });
+
+                    $loggedInUser = auth()->user();
+                    $isLoggedInManager = $loggedInUser && $loggedInUser->roles->contains(function ($role) {
+                        return in_array(strtolower(trim($role->name)), ['manager', 'store manager']);
+                    }) && $loggedInUser->user_type !== 'ADMIN' && $loggedInUser->id !== 1;
+
+                    $isRoleLocked = $isSuperAdminUser || $isLoggedInManager || ($isManagerUser && $loggedInUser && $loggedInUser->id === $user->id);
+                    $userCurrentRole = $user->roles->first();
+                @endphp
+
                 <!-- CARD 3A: Staff Role Assignment (Visible if Staff selected) -->
                 <div id="sectionStaff" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5 {{ $user->user_type === 'CUSTOMER' ? 'hidden' : '' }}">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
                         <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
                             3. Role & Module Privileges Assignment
                         </h2>
+                        @if(!$isRoleLocked)
                         <a href="{{ route('admin.roles.index') }}" class="text-[11px] text-blue-600 hover:underline font-semibold">
                             + Manage Roles
                         </a>
+                        @endif
                     </div>
 
+                    @if($isSuperAdminUser)
+                    <!-- Locked Super Admin Role Badge -->
+                    <div class="p-4 bg-amber-50/80 border border-amber-200 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-700 flex items-center justify-center font-bold text-base flex-shrink-0">
+                                🔒
+                            </div>
+                            <div>
+                                <span class="text-xs font-black text-amber-950 uppercase tracking-wider block">Super Admin (Master Wholesaler Account)</span>
+                                <span class="text-[11px] text-amber-800 font-medium">Root administrative account. Role and system privileges are permanent & locked.</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black bg-amber-200 text-amber-900 px-3 py-1 rounded-full uppercase tracking-wider">
+                            Permanent Master Role
+                        </span>
+                    </div>
+                    @elseif($isRoleLocked)
+                    <!-- Locked Role Badge for Manager or when Manager logged in -->
+                    <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-base flex-shrink-0">
+                                🔒
+                            </div>
+                            <div>
+                                <span class="text-xs font-black text-slate-800 uppercase tracking-wider block">{{ $userCurrentRole->name ?? 'Manager' }}</span>
+                                <span class="text-[11px] text-slate-500 font-medium">Role assignment is locked. Role modifications are restricted to Super Admin.</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-black bg-slate-200 text-slate-700 px-3 py-1 rounded-full uppercase tracking-wider">
+                            Locked Role
+                        </span>
+                    </div>
+                    @else
                     <div>
                         <label for="inputRole" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                             Assigned Staff Role
@@ -178,6 +246,7 @@
                             @endforeach
                         </select>
                     </div>
+                    @endif
                 </div>
 
                 <!-- CARD 3B: B2B Customer Business & Tax Info (Visible if Customer selected) -->
@@ -205,22 +274,6 @@
                             <input type="text" name="gst_number" id="inputGst" value="{{ old('gst_number', $user->gst_number) }}"
                                 placeholder="e.g. 02AAAAA0000A1Z5"
                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono uppercase text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
-                        </div>
-
-                        <!-- Customer Tier Group -->
-                        <div class="sm:col-span-2">
-                            <label for="inputGroup" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Wholesale Customer Tier / Group
-                            </label>
-                            <select name="customer_group_id" id="inputGroup"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:bg-white focus:border-blue-500 outline-none">
-                                <option value="">-- Standard Wholesale Buyer --</option>
-                                @foreach($customerGroups as $group)
-                                <option value="{{ $group->id }}" {{ old('customer_group_id', $user->customer_group_id) == $group->id ? 'selected' : '' }}>
-                                    {{ $group->name }}
-                                </option>
-                                @endforeach
-                            </select>
                         </div>
 
                         <!-- Physical Address -->
@@ -269,7 +322,7 @@
                                 {{ $user->user_type }}
                             </span>
                             <span id="previewRoleBadge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
-                                Role: {{ $user->roles->first()->name ?? 'Customer' }}
+                                Role: {{ $isSuperAdminUser ? 'Super Admin' : ($user->roles->first()->name ?? ($user->user_type === 'CUSTOMER' ? 'Customer' : 'Staff')) }}
                             </span>
                         </div>
                     </div>

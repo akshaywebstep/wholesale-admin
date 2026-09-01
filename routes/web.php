@@ -16,6 +16,8 @@ use App\Http\Controllers\Frontend\CustomerAuthController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\CustomerRegisterController;
+use App\Http\Controllers\Frontend\CustomerPasswordResetController;
+use App\Http\Controllers\Frontend\QuickOrderController;
 
 // Direct root test route
 Route::get('/test-direct', function () {
@@ -119,11 +121,19 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/category/{category}', [ShopController::class, 'category'])->name('shop.category');
 Route::get('/product/{id}', [ShopController::class, 'show'])->name('shop.product');
 Route::get('/product/{id}/quick-view', [ShopController::class, 'quickView'])->name('shop.product.quickView');
+Route::get('/search', [ShopController::class, 'search'])->name('shop.search');
+Route::get('/search/autocomplete', [ShopController::class, 'autocomplete'])->name('shop.search.autocomplete');
 
 // Customer Auth Routes
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout')->middleware('auth:customer');
+
+// Customer Password Reset
+Route::get('/forgot-password', [CustomerPasswordResetController::class, 'showForgotForm'])->name('password.request');
+Route::post('/forgot-password', [CustomerPasswordResetController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password/{token}', [CustomerPasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [CustomerPasswordResetController::class, 'resetPassword'])->name('password.update');
 
 Route::get('/register', [CustomerRegisterController::class, 'showForm'])->name('register');
 Route::post('/register', [CustomerRegisterController::class, 'store'])->name('register.store');
@@ -144,6 +154,16 @@ Route::prefix('checkout')->name('checkout.')->middleware('auth:customer')->group
     Route::get('/', [CheckoutController::class, 'index'])->name('index');
     Route::post('/process', [CheckoutController::class, 'process'])->name('process');
     Route::get('/success/{id}', [CheckoutController::class, 'success'])->name('success');
+});
+
+// B2B Bulk Quick Order & CSV Upload Routes
+Route::prefix('quick-order')->name('shop.quick-order.')->group(function () {
+    Route::get('/', [QuickOrderController::class, 'index'])->name('index');
+    Route::get('/search', [QuickOrderController::class, 'search'])->name('search');
+    Route::get('/calculate-price', [QuickOrderController::class, 'calculatePrice'])->name('calculatePrice');
+    Route::post('/upload-csv', [QuickOrderController::class, 'uploadCsv'])->name('uploadCsv');
+    Route::get('/download-template', [QuickOrderController::class, 'downloadTemplate'])->name('downloadTemplate');
+    Route::post('/add-bulk', [QuickOrderController::class, 'addBulk'])->name('addBulk');
 });
 
 // Customer Order History

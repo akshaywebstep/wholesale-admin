@@ -25,6 +25,7 @@
    07. AUTHENTICATION PAGES (Customer Login & Register)
    08. CART & CHECKOUT PAGES (Cart Table, Qty Stepper, Order Summary)
    09. GLOBAL RESPONSIVE MEDIA QUERIES & BREAKPOINTS
+   10. CUSTOMER AUTHENTICATION PORTAL (Login, Forgot Password, Reset Password)
    ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
@@ -470,6 +471,182 @@ ul {
 
 .search__btn:hover {
     background-color: var(--navy-700);
+}
+
+/* --- Live Autocomplete Search Dropdown --- */
+.search-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 16px 36px -4px rgba(11, 34, 18, 0.18), 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-height: 440px;
+    overflow-y: auto;
+    z-index: 1050;
+}
+
+.search-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 0.15s ease;
+}
+
+.search-dropdown__item:hover,
+.search-dropdown__item.is-selected {
+    background-color: #f8fafc;
+}
+
+.search-dropdown__thumb {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-dropdown__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.search-dropdown__info {
+    flex: 1 1 0%;
+    min-width: 0;
+}
+
+.search-dropdown__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+
+.search-dropdown__meta {
+    font-size: 11px;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.search-dropdown__meta .badge-sku {
+    background: #f1f5f9;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 10px;
+    color: #475569;
+}
+
+.search-dropdown__price-wrap {
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.search-dropdown__price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #144523;
+}
+
+.search-dropdown__lock {
+    font-size: 11px;
+    color: #b8801b;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.search-dropdown__footer {
+    padding: 12px 16px;
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    border-radius: 0 0 8px 8px;
+}
+
+.search-dropdown__footer a {
+    color: #144523;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-dropdown__footer a:hover {
+    text-decoration: underline;
+}
+
+.search-dropdown__message {
+    padding: 24px 16px;
+    text-align: center;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* Card slider arrows for frontend multi-image products */
+.card-slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    color: #0f172a;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.product__media:hover .card-slider-arrow {
+    opacity: 1;
+}
+
+.card-slider-prev {
+    left: 8px;
+}
+
+.card-slider-next {
+    right: 8px;
+}
+
+.card-slider-arrow:hover {
+    background: #ffffff;
+    transform: translateY(-50%) scale(1.1);
+    color: #144523;
 }
 
 .header__actions {
@@ -3433,4 +3610,746 @@ a.brand:hover img {
 @media (max-width: 640px) {
     .register-form { padding: 20px; }
     .register-form .form__row { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   10. CUSTOMER AUTHENTICATION PORTAL (Login, Forgot Password, Reset Password)
+   Pages:
+   - Trade Sign In:    /login           (resources/views/frontend/auth/login.blade.php)
+   - Forgot Password:  /forgot-password (resources/views/frontend/auth/forgot-password.blade.php)
+   - Set New Password: /reset-password  (resources/views/frontend/auth/reset-password.blade.php)
+   ========================================================================== */
+
+.portal-body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #0b1329;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.portal-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    width: 100%;
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+@media (max-width: 960px) {
+    .portal-layout {
+        grid-template-columns: 1fr;
+    }
+    .portal-brand-pane {
+        display: none !important;
+    }
+}
+
+/* --- Left Brand Showcase Pane (Common for Login, Forgot Password, Reset Password) --- */
+.portal-brand-pane {
+    background: linear-gradient(145deg, #091224 0%, #11203d 50%, #060c18 100%);
+    padding: 60px 48px;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+.portal-brand-pane::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    right: -50px;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.portal-brand-pane .brand-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.portal-brand-pane .brand-logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+}
+
+.portal-brand-pane .brand-title-wrap h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+.portal-brand-pane .brand-title-wrap p {
+    font-size: 11px;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+.portal-brand-pane .brand-hero-content {
+    margin: 40px 0;
+}
+
+.portal-brand-pane .brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(37, 99, 235, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    color: #60a5fa;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.portal-brand-pane .brand-hero-content h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    color: #ffffff;
+}
+
+.portal-brand-pane .brand-hero-content h1 span {
+    color: #f59e0b;
+}
+
+.portal-brand-pane .brand-hero-content p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #cbd5e1;
+    max-width: 480px;
+}
+
+.portal-brand-pane .perks-list {
+    list-style: none;
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.portal-brand-pane .perks-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: #e2e8f0;
+}
+
+.portal-brand-pane .perks-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.portal-brand-pane .brand-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.portal-brand-pane .brand-footer a {
+    color: #60a5fa;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* --- Right Form Pane (Shared between Login, Forgot Password, Reset Password) --- */
+.portal-form-pane {
+    background: #ffffff;
+    padding: 60px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.portal-form-pane .form-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.portal-form-pane .form-header {
+    margin-bottom: 28px;
+}
+
+.portal-form-pane .form-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.portal-form-pane .form-header p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.portal-form-pane .alert-banner {
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+}
+
+.portal-form-pane .alert-banner--error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+.portal-form-pane .alert-banner--success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+}
+
+.portal-form-pane .input-group {
+    margin-bottom: 20px;
+}
+
+.portal-form-pane .input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+}
+
+.portal-form-pane .input-control {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    color: #0f172a;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.portal-form-pane .input-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.portal-form-pane .input-control[readonly] {
+    background-color: #f1f5f9;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.portal-form-pane .form-row-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+
+.portal-form-pane .form-row-between label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    cursor: pointer;
+    user-select: none;
+}
+
+.portal-form-pane .form-row-between a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.portal-form-pane .btn-portal-submit {
+    width: 100%;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.portal-form-pane .btn-portal-submit:hover {
+    background: #1e293b;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+}
+
+.portal-form-pane .btn-portal-submit:active {
+    transform: scale(0.99);
+}
+
+/* --- Page Specific: Login Page (/login) --- */
+.portal-form-pane .register-box {
+    margin-top: 28px;
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.portal-form-pane .register-box h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.portal-form-pane .register-box p {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 14px;
+}
+
+.portal-form-pane .btn-portal-register {
+    display: inline-block;
+    width: 100%;
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.portal-form-pane .btn-portal-register:hover {
+    background: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+/* --- Page Specific: Forgot Password (/forgot-password) & Reset Password (/reset-password) --- */
+.portal-form-pane .back-box {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.portal-form-pane .back-box a {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.portal-form-pane .back-box a:hover {
+    text-decoration: underline;
+}
+
+.portal-form-pane .storefront-return {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.portal-form-pane .storefront-return a {
+    color: #0f172a;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.portal-form-pane .storefront-return a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==========================================================================
+   11. CUSTOMER AUTHENTICATION PORTAL (Register Page)
+   Pages:
+    - Trade Register:    /register        (resources/views/frontend/auth/register.blade.php)
+   ========================================================================== */
+.portal-register-form-pane {
+    background: #ffffff;
+    padding: 40px 48px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.register-card-container {
+    width: 100%;
+    max-width: 580px;
+}
+
+.register-form-header {
+    margin-bottom: 24px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+}
+
+.register-form-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+}
+
+.register-form-header p {
+    font-size: 13.5px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Form Step Cards */
+.form-step-section {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-step-section:focus-within {
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.08);
+}
+
+.form-step-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 8px;
+}
+
+.form-step-number {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 11.5px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.form-step-header h3 {
+    font-size: 12.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #0f172a;
+    letter-spacing: 0.04em;
+    margin: 0;
+}
+
+.form-step-header span.step-subtitle {
+    font-size: 11px;
+    color: #94a3b8;
+    font-weight: 500;
+    text-transform: none;
+    margin-left: auto;
+}
+
+/* Input Fields */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+@media (max-width: 640px) {
+    .form-grid-2, .form-grid-3 {
+        grid-template-columns: 1fr;
+    }
+    .portal-register-form-pane {
+        padding: 30px 20px;
+    }
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 5px;
+}
+
+.form-label .req {
+    color: #dc2626;
+    margin-left: 2px;
+}
+
+.form-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 13px;
+    font-size: 13px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    color: #0f172a;
+    background: #ffffff;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.form-input::placeholder {
+    color: #94a3b8;
+    font-size: 12.5px;
+}
+
+.form-input:disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+    border-color: #e2e8f0;
+}
+
+select.form-input {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 34px;
+    appearance: none;
+}
+
+textarea.form-input {
+    min-height: 65px;
+    resize: vertical;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+    color: #2563eb;
+}
+
+.form-hint {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 3px;
+    line-height: 1.3;
+}
+
+/* Submit Button */
+.btn-register-submit {
+    width: 100%;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.25);
+    margin-top: 8px;
+}
+
+.btn-register-submit:hover {
+    background: #1e293b;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.35);
+}
+
+.btn-register-submit:active {
+    transform: scale(0.99);
+}
+
+/* Trust Badges Bar */
+.trust-badges-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 14px 0 4px;
+    margin-top: 14px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 11.5px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.trust-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Existing Member Login Card */
+.register-login-prompt {
+    margin-top: 18px;
+    background: #f8fafc;
+    border: 1.5px dashed #cbd5e1;
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: center;
+}
+
+.register-login-prompt p {
+    font-size: 12.5px;
+    color: #475569;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+}
+
+.btn-to-login-portal {
+    display: inline-block;
+    width: 100%;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1.5px solid #0f172a;
+    padding: 9px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.btn-to-login-portal:hover {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+.register-storefront-back {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.register-storefront-back a {
+    color: #0f172a;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-storefront-back a:hover {
+    text-decoration: underline;
 }

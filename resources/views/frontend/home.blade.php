@@ -208,14 +208,43 @@
 
         <div class="products" id="product-grid">
             @forelse($featuredProducts as $product)
-            <article class="product" data-cat="{{ $product->category_id }}">
-                <div class="product__media">
+            <article class="product" data-cat="{{ $product->category_id }}" data-product-id="{{ $product->id }}">
+                <div class="product__media" data-slider data-current="0" data-total="{{ $product->images->count() }}" style="position: relative; overflow: hidden;">
                     @if($product->is_active && $product->created_at->gt(now()->subDays(7)))
-                    <span class="badge badge--dark">New</span>
+                    <span class="badge badge--dark" style="z-index: 20;">New</span>
                     @endif
-                    <img src="{{ $product->featured_image_url }}"
-                        alt="{{ $product->name }}" width="800" height="800" loading="lazy"
-                        onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+
+                    <a href="{{ route('shop.product', $product->id) }}" class="slider-viewport" style="display:block; width:100%; height:100%; overflow:hidden;">
+                        @if($product->images && $product->images->count() > 1)
+                        <div class="slider-track" style="display:flex; width:100%; height:100%; transition:transform 0.65s cubic-bezier(0.25, 1, 0.3, 1); will-change:transform;">
+                            @foreach($product->images as $idx => $img)
+                            <div class="slider-slide" style="flex:0 0 100%; width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                                <img src="{{ asset('storage/' . $img->image_path) }}"
+                                    alt="{{ $product->name }}" width="800" height="800" loading="lazy"
+                                    style="width:100%; height:100%; object-fit:contain;"
+                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                            </div>
+                            @endforeach
+                        </div>
+                        @else
+                        <img src="{{ $product->featured_image_url }}"
+                            alt="{{ $product->name }}" width="800" height="800" loading="lazy"
+                            style="width:100%; height:100%; object-fit:contain;"
+                            onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                        @endif
+                    </a>
+
+                    @if($product->images && $product->images->count() > 1)
+                    <!-- Prev Arrow -->
+                    <button type="button" class="card-slider-arrow card-slider-prev" onclick="event.preventDefault(); event.stopPropagation(); moveFrontendSlide(this, -1);">
+                        &#10094;
+                    </button>
+                    <!-- Next Arrow -->
+                    <button type="button" class="card-slider-arrow card-slider-next" onclick="event.preventDefault(); event.stopPropagation(); moveFrontendSlide(this, 1);">
+                        &#10095;
+                    </button>
+                    @endif
+
                     <button class="product__quick" type="button" data-id="{{ $product->id }}">Quick view</button>
                 </div>
                 <div class="product__body">

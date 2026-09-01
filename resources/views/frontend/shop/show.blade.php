@@ -30,6 +30,18 @@
                         onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
                 </div>
 
+                @if($product->images && $product->images->count() > 1)
+                <div class="product-thumbnails" style="display: flex; gap: 10px; margin-top: 14px; justify-content: center; flex-wrap: wrap;">
+                    @foreach($product->images as $img)
+                    <button type="button" class="gallery-thumb-btn {{ $loop->first ? 'active' : '' }}" 
+                            onclick="document.getElementById('main-product-image').src='{{ asset('storage/' . $img->image_path) }}'; document.querySelectorAll('.gallery-thumb-btn').forEach(b => { b.style.borderColor='#e2e8f0'; b.classList.remove('active'); }); this.style.borderColor='#144523'; this.classList.add('active');"
+                            style="width: 64px; height: 64px; border-radius: 8px; border: 2px solid {{ $loop->first ? '#144523' : '#e2e8f0' }}; background: #ffffff; padding: 4px; cursor: pointer; transition: all 0.2s;">
+                        <img src="{{ asset('storage/' . $img->image_path) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; object-fit: contain;" />
+                    </button>
+                    @endforeach
+                </div>
+                @endif
+
                 <!-- Fast Wholesale Logistics Specs Box (Integrated right under image) -->
                 <div style="margin-top: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px;">
                     <h4 style="font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
