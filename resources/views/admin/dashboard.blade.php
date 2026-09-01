@@ -601,29 +601,35 @@
 @endsection
 
 @push('scripts')
-<!-- Chart.js CDN for interactive visualizations -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js (Local with CDN fallback) -->
+<script src="{{ asset('js/chart.min.js') }}"></script>
+<script>
+    if (typeof Chart === 'undefined') {
+        document.write('<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"><\/script>');
+    }
+</script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js failed to load.');
+            return;
+        }
+
         // ----------------------------------------------------
         // 1. REVENUE & ORDERS AREA CHART
         // ----------------------------------------------------
         const revCtx = document.getElementById('revenueChart');
         if (revCtx) {
-            const labels = {
-                !!json_encode($chartLabels) !!
-            };
-            const revenueData = {
-                !!json_encode($revenueTrend) !!
-            };
-            const ordersData = {
-                !!json_encode($ordersTrend) !!
-            };
+            const labels = {!! json_encode($chartLabels) !!};
+            const revenueData = {!! json_encode($revenueTrend) !!};
+            const ordersData = {!! json_encode($ordersTrend) !!};
+
             new Chart(revCtx.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: labels,
-                    datasets: [{
+                    datasets: [
+                        {
                             label: 'Gross Revenue ($)',
                             data: revenueData,
                             borderColor: '#2563eb',
@@ -675,7 +681,7 @@
                                 label: function(context) {
                                     let label = context.dataset.label || '';
                                     if (context.dataset.yAxisID === 'y') {
-                                        return label + ': $' + context.parsed.y.toLocaleString();
+                                        return label + ': $' + Number(context.parsed.y).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
                                     }
                                     return label + ': ' + context.parsed.y + ' orders';
                                 }
@@ -705,7 +711,7 @@
                                     size: 11
                                 },
                                 callback: function(value) {
-                                    return '$' + value;
+                                    return '$' + Number(value).toLocaleString();
                                 }
                             }
                         },
@@ -727,42 +733,29 @@
                 }
             });
         }
+
         // ----------------------------------------------------
         // 2. ORDER STATUS DOUGHNUT CHART
         // ----------------------------------------------------
         const statusCtx = document.getElementById('orderStatusChart');
         if (statusCtx) {
-            const statusCounts = [{
-                    {
-                        $ordersByStatus['PENDING']
-                    }
-                },
-                {
-                    {
-                        $ordersByStatus['PROCESSING']
-                    }
-                },
-                {
-                    {
-                        $ordersByStatus['SHIPPED']
-                    }
-                },
-                {
-                    {
-                        $ordersByStatus['DELIVERED']
-                    }
-                }
+            const statusCounts = [
+                {{ (int)($ordersByStatus['PENDING'] ?? 0) }},
+                {{ (int)($ordersByStatus['PROCESSING'] ?? 0) }},
+                {{ (int)($ordersByStatus['SHIPPED'] ?? 0) }},
+                {{ (int)($ordersByStatus['DELIVERED'] ?? 0) }}
             ];
-            // If all 0, provide pleasant empty representation
+            
             const total = statusCounts.reduce((a, b) => a + b, 0);
             const dataValues = total > 0 ? statusCounts : [1];
-            const bgColors = total > 0 ?
-                ['#f59e0b', '#3b82f6', '#6366f1', '#10b981'] :
-                ['#e2e8f0'];
+            const bgColors = total > 0 
+                ? ['#f59e0b', '#3b82f6', '#6366f1', '#10b981'] 
+                : ['#e2e8f0'];
+            
             new Chart(statusCtx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Pending', 'Processing', 'Shipped', 'Delivered'],
+                    labels: ['Pending Review', 'Processing', 'In Transit (Shipped)', 'Delivered'],
                     datasets: [{
                         data: dataValues,
                         backgroundColor: bgColors,
