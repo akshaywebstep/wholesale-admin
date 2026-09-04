@@ -100,7 +100,7 @@ class Product extends Model
     public function getFeaturedImageUrlAttribute(): string
     {
         $first = $this->images->first();
-        if ($first && $first->image_path && file_exists(storage_path('app/public/' . $first->image_path))) {
+        if ($first && $first->image_path && (file_exists(storage_path('app/public/' . $first->image_path)) || file_exists(public_path('storage/' . $first->image_path)))) {
             return asset('storage/' . $first->image_path);
         }
         return asset('images/product1.png');

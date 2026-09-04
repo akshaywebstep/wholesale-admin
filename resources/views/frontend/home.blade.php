@@ -161,10 +161,14 @@
         <div class="cats">
             @forelse($categories as $category)
             <a class="cat @if($loop->first) cat--featured @endif" href="{{ route('shop.category', $category->id) }}">
-                <span class="cat__icon" aria-hidden="true">
-                    <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M4 6h16M4 12h16M4 18h16" /></svg>
+                <span class="cat__icon" aria-hidden="true" style="overflow: hidden; padding: 2px;">
+                    @if($category->image_url && !str_contains($category->image_url, 'product1.png'))
+                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                    @else
+                        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    @endif
                 </span>
                 <span class="cat__body">
                     <span class="cat__name">{{ $category->name }}</span>
@@ -248,11 +252,18 @@
                     <button class="product__quick" type="button" data-id="{{ $product->id }}">Quick view</button>
                 </div>
                 <div class="product__body">
-                    <p class="product__pack">{{ $product->category->name ?? '' }}</p>
-                    <h3 class="product__name">{{ $product->name }}</h3>
-                    <p class="product__meta" style="border: none; padding-bottom: 0; margin-bottom: 6px;">
-                        SKU {{ $product->sku }} &middot; In stock
-                    </p>
+                    <p class="product__pack">{{ $product->category->name ?? 'Wholesale Supply' }}</p>
+                    <a href="{{ route('shop.product', $product->id) }}" style="text-decoration: none; color: inherit;">
+                        <h3 class="product__name" title="{{ $product->name }}">{{ $product->name }}</h3>
+                    </a>
+                    <div class="product__meta">
+                        <span style="font-weight: 500;">SKU: {{ $product->sku }}</span>
+                        <span>&middot;</span>
+                        <span style="color: #16a34a; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: #22c55e; display: inline-block;"></span>
+                            In stock
+                        </span>
+                    </div>
 
                     <div class="product__price-container"
                         style="border-top: 1px dotted #e5e7eb; border-bottom: none; padding: 10px 0; margin: 8px 0;">

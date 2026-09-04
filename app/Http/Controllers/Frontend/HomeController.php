@@ -68,6 +68,17 @@ class HomeController extends Controller
                         'Instant replacement policy on factory defects'
                     ]
                 ],
+                'cigars-cigarillos-wraps' => [
+                    'icon' => '🍂',
+                    'badge' => 'High-Velocity Counter Boxes',
+                    'tagline' => 'Best-Selling Cigarillos, Natural Leaf & Wraps',
+                    'desc' => 'Direct master distributor cases of Swisher Sweets, Dutch Masters, Game, Backwoods, LooseLeaf, and White Owl fresh foil pouches.',
+                    'perks' => [
+                        'Pre-priced 2-for-$1.29 and Save-on-2 display boxes',
+                        'Guaranteed fresh foil seal and maximum shelf life',
+                        'Full case packs and counter-ready open trays'
+                    ]
+                ],
                 'smoke-shop-roll-your-own' => [
                     'icon' => '🌿',
                     'badge' => 'Impulse Counter Display',

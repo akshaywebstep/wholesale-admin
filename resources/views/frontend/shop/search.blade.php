@@ -72,15 +72,17 @@
                 <div class="product__body">
                     <p class="product__pack">{{ $product->category->name ?? 'Wholesale Supply' }}</p>
                     <a href="{{ route('shop.product', $product->id) }}" style="text-decoration: none; color: inherit;">
-                        <h3 class="product__name">{{ $product->name }}</h3>
+                        <h3 class="product__name" title="{{ $product->name }}">{{ $product->name }}</h3>
                     </a>
 
-                    <p class="product__meta" style="border: none; padding-bottom: 0; margin-bottom: 6px;">
-                        SKU {{ $product->sku ?? '-' }} &middot;
-                        <span class="{{ $product->is_active ? 'text-success' : 'text-danger' }}">
+                    <div class="product__meta">
+                        <span style="font-weight: 500;">SKU: {{ $product->sku ?? '-' }}</span>
+                        <span>&middot;</span>
+                        <span style="color: {{ $product->is_active ? '#16a34a' : '#dc2626' }}; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background: {{ $product->is_active ? '#22c55e' : '#ef4444' }}; display: inline-block;"></span>
                             {{ $product->is_active ? 'In stock' : 'Out of stock' }}
                         </span>
-                    </p>
+                    </div>
 
                     <!-- Price Container -->
                     <div class="product__price-container" style="border-top: 1px dotted #e5e7eb; border-bottom: none; padding: 10px 0; margin: 8px 0;">
