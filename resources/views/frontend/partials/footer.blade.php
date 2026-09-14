@@ -16,7 +16,7 @@
         <nav class="footer__col" aria-label="Shop">
           <h3>Shop</h3>
           <ul>
-            <li><a href="#departments">All Categories</a></li>
+            <li><a href="#deals">All Categories</a></li>
             <li><a href="#deals">Weekly Deals</a></li>
             <li><a href="#deals">New Arrivals</a></li>
             <li><a href="#deals">Best Sellers</a></li>

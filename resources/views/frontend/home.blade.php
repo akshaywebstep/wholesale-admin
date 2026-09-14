@@ -9,7 +9,7 @@
     <div class="hero__bg">
         <img src="{{ asset('images/hero-warehouse.jpg') }}" alt="" width="1600" height="900" />
     </div>
-    <div class="container hero__inner">
+    <div class="container hero__inner" style="grid-template-columns: 1fr; max-width: 820px;">
         <div class="hero__copy">
             <p class="pill">Trusted by 2,400+ retailers</p>
             <h1 class="display">
@@ -40,54 +40,6 @@
                 </div>
             </dl>
         </div>
-
-                                @customer
-        @php
-            $activeCust = (auth('customer')->user() && auth('customer')->user()->user_type === 'CUSTOMER') ? auth('customer')->user() : auth('web')->user();
-        @endphp
-        <aside class="card card--form" style="background: #ffffff; border: 1.5px solid #d8e4dc; border-radius: 16px; padding: 28px; box-shadow: 0 15px 35px -5px rgba(11,34,18,0.25);">
-            <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #a7f3d0;">
-                ● Verified Trade Account
-            </div>
-            <h2 class="card__title" style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin-bottom: 8px;">
-                Wholesale Pricing Active
-            </h2>
-            <p class="card__note" style="color: #546b5a; font-size: 13px; line-height: 1.5; margin-bottom: 18px;">
-                Welcome back, <strong>{{ $activeCust->name }}</strong>! Live wholesale bulk discounts and case rates are unlocked.
-            </p>
-            <a href="#deals" class="btn btn--primary btn--block" style="padding: 13px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; text-align: center; text-decoration: none; display: block; margin-bottom: 12px; background: #d99b26; color: #0b2212; border: none; box-shadow: 0 4px 14px rgba(217,155,38,0.35);">
-                📦 Browse Full Catalog &rarr;
-            </a>
-            <div style="text-align: center; font-size: 12px; color: #546b5a;">
-                <a href="{{ route('cart.index') }}" style="color: #144523; font-weight: 800; text-decoration: none;">View Active Order / Cart &rarr;</a>
-            </div>
-        </aside>
-        @else
-        <aside class="card card--form" style="background: #ffffff; border: 1.5px solid #d8e4dc; border-radius: 16px; padding: 28px; box-shadow: 0 15px 35px -5px rgba(11,34,18,0.25);">
-            <div style="display: inline-flex; align-items: center; gap: 6px; background: #fdf6e7; color: #b8801b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; border: 1px solid #fde68a;">
-                ⚡ 2-Minute Trade Setup
-            </div>
-            <h2 class="card__title" style="font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0b2212; margin-bottom: 8px;">
-                Get Wholesale Pricing
-            </h2>
-            <p class="card__note" style="color: #546b5a; font-size: 13px; line-height: 1.5; margin-bottom: 18px;">
-                True bulk case prices, tier rebates & truck routes are visible to approved retailers only.
-            </p>
-            <a href="{{ route('register') }}" class="btn btn--primary btn--block" style="padding: 13px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 8px; text-align: center; text-decoration: none; display: block; margin-bottom: 12px; background: #d99b26; color: #0b2212; border: none; box-shadow: 0 4px 14px rgba(217,155,38,0.35);">
-                ✨ Create Trade Account &rarr;
-            </a>
-            <div style="text-align: center; font-size: 12px; color: #546b5a; margin-bottom: 12px;">
-                Already verified? <a href="{{ route('login') }}" style="color: #144523; font-weight: 800; text-decoration: none;">Sign In &rarr;</a>
-            </div>
-            <p class="card__fine" style="font-size: 11px; color: #546b5a; display: flex; align-items: center; gap: 6px; border-top: 1px solid #d8e4dc; padding-top: 10px; margin-top: 8px;">
-                <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px; height:14px; flex-shrink:0; color: #144523;">
-                    <rect x="5" y="10" width="14" height="10" rx="2" />
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3" />
-                </svg> 
-                21+ state business verification required for age-restricted SKUs.
-            </p>
-        </aside>
-        @endcustomer
     </div>
 </section>
 
@@ -143,45 +95,6 @@
     </div>
 </section>
 
-<!-- Departments (DYNAMIC) -->
-<section class="section" id="departments">
-    <div class="container">
-        <header class="section__head">
-            <div>
-                <p class="eyebrow">Shop by department</p>
-                <h2 class="heading">Everything your shelves need</h2>
-                <p class="section__sub">
-                    Order across every department in a single invoice &mdash; picked, packed and
-                    delivered by our own fleet.
-                </p>
-            </div>
-            <a class="textlink" href="#deals">View full catalog <span aria-hidden="true">&rarr;</span></a>
-        </header>
-
-        <div class="cats">
-            @forelse($categories as $category)
-            <a class="cat @if($loop->first) cat--featured @endif" href="{{ route('shop.category', $category->id) }}">
-                <span class="cat__icon" aria-hidden="true" style="overflow: hidden; padding: 2px;">
-                    @if($category->image_url)
-                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none';">
-                    @else
-                        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M4 6h16M4 12h16M4 18h16" /></svg>
-                    @endif
-                </span>
-                <span class="cat__body">
-                    <span class="cat__name">{{ $category->name }}</span>
-                    <span class="cat__count">{{ $category->total_products_count }} items</span>
-                </span>
-                <span class="cat__go" aria-hidden="true">&rarr;</span>
-            </a>
-            @empty
-            <p class="products__empty">No categories found.</p>
-            @endforelse
-        </div>
-    </div>
-</section>
 
 <!-- Featured deals (DYNAMIC) -->
 <section class="section section--alt" id="deals">
@@ -311,115 +224,6 @@
     </div>
 </section>
 
-<!-- Store Type Solutions & Department Showcase (DYNAMIC) -->
-<section class="section solutions" id="solutions">
-    <div class="container">
-        <header class="section__head section__head--center">
-            <div>
-                <p class="eyebrow">Department Inventory Highlights</p>
-                <h2 class="heading">Tailored Solutions &amp; Category Showcase</h2>
-                <p class="section__sub">
-                    Explore top-selling inventory mixes, wholesale pack sizes, and direct distribution support crafted for retail shelves.
-                </p>
-            </div>
-        </header>
-
-        <!-- Dynamic Department Solution Tabs -->
-        <div class="solution-tabs" role="tablist" aria-label="Select department">
-            @foreach(($solutions ?? collect()) as $index => $sol)
-            <button class="solution-tab {{ $index === 0 ? 'is-active' : '' }}" type="button" role="tab"
-                aria-selected="{{ $index === 0 ? 'true' : 'false' }}"
-                aria-controls="panel-{{ $sol['slug'] }}" id="tab-{{ $sol['slug'] }}" data-target="panel-{{ $sol['slug'] }}">
-                <span class="solution-tab__icon">
-                    <span style="font-size: 16px;">{{ $sol['icon'] }}</span>
-                </span>
-                <span>{{ $sol['name'] }}</span>
-            </button>
-            @endforeach
-        </div>
-
-        <div class="solution-panels">
-            @foreach(($solutions ?? collect()) as $index => $sol)
-            <div class="solution-panel {{ $index === 0 ? 'is-active' : '' }}" id="panel-{{ $sol['slug'] }}" role="tabpanel" aria-labelledby="tab-{{ $sol['slug'] }}" {{ $index === 0 ? '' : 'hidden' }}>
-                <div class="solution-panel__grid">
-                    <!-- Left Info -->
-                    <div class="solution-info">
-                        <span class="solution-badge">{{ $sol['badge'] }}</span>
-                        <h3 class="solution-title">{{ $sol['tagline'] }}</h3>
-                        <p class="solution-desc">
-                            {{ $sol['desc'] }}
-                        </p>
-                        <div class="solution-stats">
-                            <div class="sol-stat"><strong>{{ $sol['product_count'] }}+</strong><span>Active SKUs</span></div>
-                            <div class="sol-stat"><strong>{{ $sol['sub_count'] }}</strong><span>Product Lines</span></div>
-                            <div class="sol-stat"><strong>Next-Day</strong><span>Truck Drop-off</span></div>
-                        </div>
-                        <ul class="solution-perks">
-                            @foreach($sol['perks'] as $perk)
-                            <li>
-                                <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="20 6 9 17 4 12" />
-                                </svg>
-                                {{ $perk }}
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
-
-                                        <!-- Right Featured Product Showcase Card -->
-                    @if($sol['product'])
-                    <div class="starter-card">
-                        <div class="starter-card__tag">Featured SKU</div>
-                        <div class="starter-card__media">
-                            <img src="{{ $sol['product']->featured_image_url }}" class="starter-card__ambient-bg" alt="" aria-hidden="true" onerror="this.style.display='none';" />
-                            <a href="{{ route('shop.product', $sol['product']->id) }}" class="starter-card__img-link">
-                                <img src="{{ $sol['product']->featured_image_url }}"
-                                    alt="{{ $sol['product']->name }}" class="starter-card__main-img" loading="lazy"
-                                    onerror="this.style.display='none';" />
-                            </a>
-                        </div>
-                        <div class="starter-card__content">
-                            <p class="starter-card__cat">{{ $sol['name'] }}</p>
-                            <a href="{{ route('shop.product', $sol['product']->id) }}" style="text-decoration: none; color: inherit;">
-                                <h4 class="starter-card__title" style="margin-bottom: 8px;">{{ $sol['product']->name }}</h4>
-                            </a>
-                            <p class="starter-card__meta" style="margin-bottom: 14px;">
-                                SKU: <strong>{{ $sol['product']->sku }}</strong>
-                                @if($sol['product']->formatted_weight)
-                                &middot; Weight: <strong>{{ $sol['product']->formatted_weight }}</strong>
-                                @endif
-                                &middot; <span style="color:#16a34a; font-weight:600;">● In Stock</span>
-                            </p>
-
-                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #475569;">
-                                    <span>Packaging Unit:</span>
-                                    <strong style="color: #0f172a;">{{ $sol['product']->unit->name ?? 'Case / Pack' }}</strong>
-                                </div>
-                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #475569; margin-top: 4px;">
-                                    <span>Availability:</span>
-                                    <strong style="color: #16a34a;">Immediate Route Dispatch</strong>
-                                </div>
-                            </div>
-
-                            <div class="starter-card__footer" style="padding-top: 4px;">
-                                <a href="{{ route('shop.category', $sol['id']) }}" class="btn btn--primary btn--block" style="text-align: center; text-decoration: none; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 11px;">
-                                    Explore {{ $sol['name'] }} Catalog &rarr;
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    @else
-                    <div class="starter-card" style="display:flex; align-items:center; justify-content:center; padding:30px; text-align:center;">
-                        <p style="color:#64748b; font-size:14px;">Contact representative for customized {{ $sol['name'] }} inventory mixes.</p>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
 
 <!-- Brands -->
 <section class="brands" aria-label="Brands we distribute">
