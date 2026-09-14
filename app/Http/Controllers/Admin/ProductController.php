@@ -87,6 +87,97 @@ class ProductController extends Controller
         return view('admin.products.index', compact('products', 'categories'));
     }
 
+    public function exportExcel(Request $request)
+    {
+        $query = Product::with(['images', 'category.parent', 'unit', 'variants.stocks', 'priceTiers']);
+
+        // Search by Name or SKU
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('sku', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by Category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        // Filter by Status
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($status === 'inactive') {
+                $query->where('is_active', false);
+            }
+        }
+
+        $products = $query->orderBy('id', 'asc')->get();
+        $filename = 'wholesale_products_' . date('Y-m-d_His') . '.csv';
+
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $callback = function () use ($products) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM so Microsoft Excel correctly renders all special characters
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // CSV Column Headers
+            fputcsv($file, [
+                'Product ID',
+                'SKU / Item Code',
+                'Product Name',
+                'Department (Main)',
+                'Sub-Category',
+                'Base Price ($)',
+                'Total Stock (Units)',
+                'Stock Status',
+                'Product Status',
+                'Wholesale Volume Tier Pricing',
+                'Variants Count',
+                'Primary Image URL',
+                'Description'
+            ]);
+
+            foreach ($products as $p) {
+                $mainDept = $p->category ? ($p->category->parent ? $p->category->parent->name : $p->category->name) : 'General';
+                $subCat = ($p->category && $p->category->parent) ? $p->category->name : '';
+                $tiersStr = $p->priceTiers->map(fn($t) => $t->min_qty . '+: $' . number_format((float)$t->price, 2))->join(' | ');
+                $imgUrl = $p->images->first() ? $p->images->first()->url : '';
+                $stockStatus = $p->total_stock > 0 ? 'In Stock' : 'Out of Stock';
+
+                fputcsv($file, [
+                    $p->id,
+                    $p->sku,
+                    $p->name,
+                    $mainDept,
+                    $subCat,
+                    number_format((float)$p->base_price, 2),
+                    $p->total_stock,
+                    $stockStatus,
+                    $p->is_active ? 'Active' : 'Inactive',
+                    $tiersStr ?: 'Standard',
+                    $p->variants->count(),
+                    $imgUrl,
+                    strip_tags($p->description ?? '')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function create()
     {
         $categories = Category::whereNull('parent_id')

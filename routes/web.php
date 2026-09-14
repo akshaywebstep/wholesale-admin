@@ -76,6 +76,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ===== PRODUCTS =====
         Route::get('products', [ProductController::class, 'index'])->name('products.index')->middleware('permission:Product,VIEW');
+        Route::get('products/export', [ProductController::class, 'exportExcel'])->name('products.export')->middleware('permission:Product,VIEW');
         Route::get('products/create', [ProductController::class, 'create'])->name('products.create')->middleware('permission:Product,CREATE');
         Route::post('products', [ProductController::class, 'store'])->name('products.store')->middleware('permission:Product,CREATE');
         Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show')->middleware('permission:Product,VIEW');

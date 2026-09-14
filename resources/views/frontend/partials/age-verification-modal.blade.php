@@ -1,16 +1,16 @@
 <!-- Age Verification Modal (Exact Star Importers Specification) -->
 <div id="ageVerificationModal"
     style="display: none; position: fixed; inset: 0; z-index: 999999; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(2px); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
-    
+
     <div id="ageVerificationCard"
         style="background: #ffffff; border-radius: 6px; max-width: 580px; width: 100%; padding: 40px 35px 35px 35px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4); text-align: center; position: relative; animation: ageModalPop 0.25s ease-out;">
-        
+
         <!-- Wholesale Logo -->
         <div style="margin-bottom: 12px; display: flex; justify-content: center; align-items: center;">
             <img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name', 'Carolina Prime Distributors') }} Logo"
                 style="max-width: 260px; max-height: 95px; width: auto; height: auto; object-fit: contain; display: block;"
                 onerror="this.style.display='none'; document.getElementById('ageFallbackLogo').style.display='block';" />
-            
+
             <!-- Fallback text branding if image not loaded -->
             <div id="ageFallbackLogo" style="display: none; font-size: 24px; font-weight: 800; color: #3e4093; letter-spacing: 1px; text-transform: uppercase;">
                 {{ config('app.name', 'Wholesale Distributors') }}
@@ -72,7 +72,7 @@
         if (!modal || !btnEnter || !btnUnderage) return;
 
         // Check if user is already age verified
-        var isVerified = (sessionStorage.getItem('DontShowPopups') === 'true') || 
+        var isVerified = (sessionStorage.getItem('DontShowPopups') === 'true') ||
                          (localStorage.getItem('age_verified') === 'true');
 
         if (!isVerified) {
