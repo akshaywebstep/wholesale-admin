@@ -18,52 +18,68 @@ class CustomerAuthController extends Controller
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->validate([
-        'email'    => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
-        $user = Auth::guard('customer')->user();
+        if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::guard('customer')->user();
 
-        if ($user->user_type !== 'CUSTOMER') {
-            Auth::guard('customer')->logout();
-            return back()->withErrors([
-                'email' => 'Please login with a Customer account.',
-            ])->onlyInput('email');
+            if ($user->user_type !== 'CUSTOMER') {
+                Auth::guard('customer')->logout();
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => 'Please login with a Customer account.'], 422);
+                }
+                return back()->withErrors([
+                    'email' => 'Please login with a Customer account.',
+                ])->onlyInput('email');
+            }
+
+            // Status check karo
+            if (strtoupper($user->status) !== 'ACTIVE') {
+                Auth::guard('customer')->logout();
+
+                $message = match (strtoupper($user->status)) {
+                    'PENDING'  => 'Your account is pending approval. We will notify you once it is approved.',
+                    'REJECTED' => 'Your account request has been rejected. Please contact support for more details.',
+                    'INACTIVE' => 'Your account has been deactivated. Please contact support.',
+                    default    => 'Your account is not active. Please contact support.',
+                };
+
+                if ($request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return back()->withErrors([
+                    'email' => $message,
+                ])->onlyInput('email');
+            }
+
+            $request->session()->regenerate();
+
+            if ($request->wantsJson()) {
+                return response()->json(['success' => true, 'redirect' => route('home')]);
+            }
+
+            return redirect()->route('home')->with('success', 'Logged in successfully!');
         }
 
-        // Status check karo
-        if (strtoupper($user->status) !== 'ACTIVE') {
-            Auth::guard('customer')->logout();
-
-            $message = match (strtoupper($user->status)) {
-                'PENDING'  => 'Your account is pending approval. We will notify you once it is approved.',
-                'REJECTED' => 'Your account request has been rejected. Please contact support for more details.',
-                'INACTIVE' => 'Your account has been deactivated. Please contact support.',
-                default    => 'Your account is not active. Please contact support.',
-            };
-
-            return back()->withErrors([
-                'email' => $message,
-            ])->onlyInput('email');
+        if ($request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => 'The provided credentials do not match our records.'], 422);
         }
 
-        $request->session()->regenerate();
-
-        return redirect()->route('home')->with('success', 'Logged in successfully!');
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
-
-    return back()->withErrors([
-        'email' => 'The provided credentials do not match our records.',
-    ])->onlyInput('email');
-}
 
     public function logout(Request $request)
     {
         Auth::guard('customer')->logout();
-        $request->session()->regenerate();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('home');
     }

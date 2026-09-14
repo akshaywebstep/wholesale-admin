@@ -294,9 +294,33 @@ class ProductController extends Controller
         return back()->with('success', 'Images uploaded successfully.');
     }
 
-    public function destroyImage(ProductImage $image)
+    public function destroyImage(Request $request, ...$args)
     {
-        $productId = $image->product_id;
+        $image = null;
+        $productId = null;
+
+        foreach ($args as $arg) {
+            if ($arg instanceof ProductImage) {
+                $image = $arg;
+            } elseif ($arg instanceof Product) {
+                $productId = $arg->id;
+            }
+        }
+
+        if (!$image) {
+            foreach ($args as $arg) {
+                if (is_numeric($arg) && ($found = ProductImage::find($arg))) {
+                    $image = $found;
+                    break;
+                }
+            }
+        }
+
+        if (!$image) {
+            return back()->with('error', 'Image not found.');
+        }
+
+        $productId = $productId ?: $image->product_id;
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
 
@@ -332,9 +356,33 @@ class ProductController extends Controller
             ->with('success', 'New variant added with inventory levels.');
     }
 
-    public function destroyVariant(ProductVariant $variant)
+    public function destroyVariant(Request $request, ...$args)
     {
-        $productId = $variant->product_id;
+        $variant = null;
+        $productId = null;
+
+        foreach ($args as $arg) {
+            if ($arg instanceof ProductVariant) {
+                $variant = $arg;
+            } elseif ($arg instanceof Product) {
+                $productId = $arg->id;
+            }
+        }
+
+        if (!$variant) {
+            foreach ($args as $arg) {
+                if (is_numeric($arg) && ($found = ProductVariant::find($arg))) {
+                    $variant = $found;
+                    break;
+                }
+            }
+        }
+
+        if (!$variant) {
+            return back()->with('error', 'Variant not found.');
+        }
+
+        $productId = $productId ?: $variant->product_id;
         $variant->delete();
 
         return redirect()->route('admin.products.edit', $productId)
@@ -390,9 +438,33 @@ class ProductController extends Controller
         return back()->with('success', 'Wholesale volume price tier added.');
     }
 
-    public function destroyPriceTier(ProductPriceTier $priceTier)
+    public function destroyPriceTier(Request $request, ...$args)
     {
-        $productId = $priceTier->product_id;
+        $priceTier = null;
+        $productId = null;
+
+        foreach ($args as $arg) {
+            if ($arg instanceof ProductPriceTier) {
+                $priceTier = $arg;
+            } elseif ($arg instanceof Product) {
+                $productId = $arg->id;
+            }
+        }
+
+        if (!$priceTier) {
+            foreach ($args as $arg) {
+                if (is_numeric($arg) && ($found = ProductPriceTier::find($arg))) {
+                    $priceTier = $found;
+                    break;
+                }
+            }
+        }
+
+        if (!$priceTier) {
+            return back()->with('error', 'Price tier not found.');
+        }
+
+        $productId = $productId ?: $priceTier->product_id;
         $priceTier->delete();
 
         return redirect()->route('admin.products.edit', $productId)

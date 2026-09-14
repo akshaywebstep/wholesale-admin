@@ -172,7 +172,7 @@
                                 <img src="{{ asset('storage/' . $img->image_path) }}" 
                                      alt="{{ $product->name }}"
                                      class="max-w-full max-h-44 object-contain transition-transform duration-500 group-hover:scale-105"
-                                     onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                                     onerror="this.style.display='none';">
                             </div>
                             @endforeach
                         </div>
@@ -205,11 +205,11 @@
                         @endforeach
                     </div>
                 </div>
-                @else
+                @elseif($product->featured_image_url)
                 <a href="{{ route('admin.products.show', $product) }}" class="w-full h-full flex items-center justify-center pt-6 pb-2">
                     <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}"
                         class="max-w-full max-h-44 object-contain group-hover:scale-105 transition-transform duration-300"
-                        onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                        onerror="this.style.display='none';">
                 </a>
                 @endif
             </div>
@@ -341,7 +341,9 @@
                         <!-- Photo -->
                         <td class="py-3 px-4">
                             <a href="{{ route('admin.products.show', $product) }}" class="block w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden p-1 flex-shrink-0">
-                                <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}" class="w-full h-full object-contain" onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                                @if($product->featured_image_url)
+                                <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}" class="w-full h-full object-contain" onerror="this.style.display='none';">
+                                @endif
                             </a>
                         </td>
 

@@ -28,15 +28,15 @@
                                 <img src="{{ asset('storage/' . $img->image_path) }}"
                                     alt="{{ $product->name }}" width="800" height="800" loading="lazy"
                                     style="width:100%; height:100%; object-fit:contain;"
-                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                                    onerror="this.style.display='none';" />
                             </div>
                             @endforeach
                         </div>
-                        @else
+                        @elseif($product->featured_image_url)
                         <img src="{{ $product->featured_image_url }}"
                             alt="{{ $product->name }}" width="800" height="800" loading="lazy"
                             style="width:100%; height:100%; object-fit:contain;"
-                            onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                            onerror="this.style.display='none';" />
                         @endif
                     </a>
 

@@ -133,7 +133,9 @@
                             <tr>
                                 <td class="py-4 px-4">
                                     <div class="flex items-center gap-3">
-                                        <img src="{{ $product ? $product->featured_image_url : asset('images/product1.png') }}" alt="" class="w-10 h-10 object-contain rounded-lg border border-slate-200 bg-slate-50 p-1 shrink-0" onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                                        @if($product && $product->featured_image_url)
+                                        <img src="{{ $product->featured_image_url }}" alt="" class="w-10 h-10 object-contain rounded-lg border border-slate-200 bg-slate-50 p-1 shrink-0" onerror="this.style.display='none';">
+                                        @endif
                                         <div>
                                             <div class="font-bold text-slate-800 text-sm">{{ $product->name ?? 'Product Unavailable' }}</div>
                                             <div class="text-[11px] text-slate-400 mt-0.5">

@@ -363,8 +363,8 @@
                             <span id="previewStatusBadge" class="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 z-10">
                                 ACTIVE
                             </span>
-                            <img id="previewImage" src="{{ asset('images/product1.png') }}" alt="Preview"
-                                class="max-w-full max-h-full object-contain pointer-events-none transition-transform duration-300">
+                            <img id="previewImage" src="" alt="Preview"
+                                class="max-w-full max-h-full object-contain pointer-events-none transition-transform duration-300 hidden">
                         </div>
 
                         <div class="p-4 space-y-2 bg-white">
@@ -693,7 +693,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             previewGrid.classList.add('hidden');
             countBadge.classList.add('hidden');
-            previewImage.src = '{{ asset("images/product1.png") }}';
+            previewImage.src = '';
+            previewImage.classList.add('hidden');
         }
     });
 });

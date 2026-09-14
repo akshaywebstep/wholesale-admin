@@ -21,11 +21,30 @@ return Application::configure(basePath: dirname(__DIR__))
             return route('login');
         });
 
-        // Permission Middleware Register Karein
+        // Prevent 419 Page Expired on login & logout endpoints across multiple tabs/guards
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'admin/login',
+            'logout',
+            'admin/logout',
+        ]);
+
+        // Custom Middleware Aliases
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
+            'coming_soon' => \App\Http\Middleware\EnsureComingSoonAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, Request $request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return redirect()->route('admin.login')
+                    ->with('error', 'Session refreshed. Please sign in again.')
+                    ->withInput($request->except('password', '_token'));
+            }
+
+            return redirect()->route('home')
+                ->with('error', 'Your session was refreshed. Please try again.')
+                ->withInput($request->except('password', '_token'));
+        });
     })->create();

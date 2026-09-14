@@ -111,7 +111,7 @@
                     <tr class="bg-slate-50/80 hover:bg-slate-100/70 transition-colors font-medium">
                         <td class="py-3.5 px-4">
                             @if($category->image)
-                            <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm" onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                            <img src="{{ $category->image_url }}" alt="{{ $category->name }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm" onerror="this.style.display='none';">
                             @else
                             <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-xs">📁</div>
                             @endif
@@ -170,7 +170,7 @@
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="py-2.5 px-4 pl-6">
                             @if($child->image)
-                            <img src="{{ $child->image_url }}" alt="{{ $child->name }}" class="w-8 h-8 rounded-lg object-cover border border-slate-200" onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                            <img src="{{ $child->image_url }}" alt="{{ $child->name }}" class="w-8 h-8 rounded-lg object-cover border border-slate-200" onerror="this.style.display='none';">
                             @else
                             <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center text-[10px] font-bold">↳</div>
                             @endif

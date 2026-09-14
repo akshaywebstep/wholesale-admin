@@ -37,7 +37,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     // Authenticated Admin
     Route::middleware('auth:web')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+        Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:Dashboard,VIEW');
 
         // ===== USERS =====
@@ -85,13 +85,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // ===== PRODUCT SUB-RESOURCES (Nested under Product) =====
         Route::post('products/{product}/variants', [ProductController::class, 'storeVariant'])->name('products.variants.store')->middleware('permission:Product,CREATE');
-        Route::delete('product-variants-item/{variant}', [ProductController::class, 'destroyVariant'])->name('products.variants.destroy')->middleware('permission:Product,DELETE');
+        Route::delete('products/{product}/variants/{variant}', [ProductController::class, 'destroyVariant'])->name('products.variants.destroy')->middleware('permission:Product,DELETE');
+        Route::delete('product-variants-item/{variant}', [ProductController::class, 'destroyVariant'])->name('products.variants.destroy.single')->middleware('permission:Product,DELETE');
 
         Route::post('products/{product}/images', [ProductController::class, 'storeImage'])->name('products.images.store')->middleware('permission:Product,CREATE');
-        Route::delete('product-images/{image}', [ProductController::class, 'destroyImage'])->name('products.images.destroy')->middleware('permission:Product,DELETE');
+        Route::delete('products/{product}/images/{image}', [ProductController::class, 'destroyImage'])->name('products.images.destroy')->middleware('permission:Product,DELETE');
+        Route::delete('product-images/{image}', [ProductController::class, 'destroyImage'])->name('products.images.destroy.single')->middleware('permission:Product,DELETE');
 
         Route::post('products/{product}/price-tiers', [ProductController::class, 'storePriceTier'])->name('products.price-tiers.store')->middleware('permission:Product,CREATE');
-        Route::delete('product-price-tiers/{priceTier}', [ProductController::class, 'destroyPriceTier'])->name('products.price-tiers.destroy')->middleware('permission:Product,DELETE');
+        Route::delete('products/{product}/price-tiers/{priceTier}', [ProductController::class, 'destroyPriceTier'])->name('products.price-tiers.destroy')->middleware('permission:Product,DELETE');
+        Route::delete('product-price-tiers/{priceTier}', [ProductController::class, 'destroyPriceTier'])->name('products.price-tiers.destroy.single')->middleware('permission:Product,DELETE');
 
         Route::post('products/{product}/stock', [ProductController::class, 'updateStock'])->name('products.stock.update')->middleware('permission:Product,UPDATE');
 
@@ -114,61 +117,63 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Frontend Routes
+| Frontend Routes (Protected by Coming Soon middleware for guests)
 |--------------------------------------------------------------------------
 */
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/category/{category}', [ShopController::class, 'category'])->name('shop.category');
-Route::get('/product/{id}', [ShopController::class, 'show'])->name('shop.product');
-Route::get('/product/{id}/quick-view', [ShopController::class, 'quickView'])->name('shop.product.quickView');
-Route::get('/search', [ShopController::class, 'search'])->name('shop.search');
-Route::get('/search/autocomplete', [ShopController::class, 'autocomplete'])->name('shop.search.autocomplete');
+Route::middleware(['coming_soon'])->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/category/{category}', [ShopController::class, 'category'])->name('shop.category');
+    Route::get('/product/{id}', [ShopController::class, 'show'])->name('shop.product');
+    Route::get('/product/{id}/quick-view', [ShopController::class, 'quickView'])->name('shop.product.quickView');
+    Route::get('/search', [ShopController::class, 'search'])->name('shop.search');
+    Route::get('/search/autocomplete', [ShopController::class, 'autocomplete'])->name('shop.search.autocomplete');
 
-// Customer Auth Routes
-Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
-Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout')->middleware('auth:customer');
+    // Customer Auth Routes
+    Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+    Route::match(['get', 'post'], '/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
-// Customer Password Reset
-Route::get('/forgot-password', [CustomerPasswordResetController::class, 'showForgotForm'])->name('password.request');
-Route::post('/forgot-password', [CustomerPasswordResetController::class, 'sendResetLink'])->name('password.email');
-Route::get('/reset-password/{token}', [CustomerPasswordResetController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [CustomerPasswordResetController::class, 'resetPassword'])->name('password.update');
+    // Customer Password Reset
+    Route::get('/forgot-password', [CustomerPasswordResetController::class, 'showForgotForm'])->name('password.request');
+    Route::post('/forgot-password', [CustomerPasswordResetController::class, 'sendResetLink'])->name('password.email');
+    Route::get('/reset-password/{token}', [CustomerPasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [CustomerPasswordResetController::class, 'resetPassword'])->name('password.update');
 
-Route::get('/register', [CustomerRegisterController::class, 'showForm'])->name('register');
-Route::post('/register', [CustomerRegisterController::class, 'store'])->name('register.store');
-Route::get('/get-states/{country_id}', [CustomerRegisterController::class, 'getStates'])->name('get.states');
-Route::get('/get-cities/{state_id}', [CustomerRegisterController::class, 'getCities'])->name('get.cities');
+    Route::get('/register', [CustomerRegisterController::class, 'showForm'])->name('register');
+    Route::post('/register', [CustomerRegisterController::class, 'store'])->name('register.store');
+    Route::get('/get-states/{country_id}', [CustomerRegisterController::class, 'getStates'])->name('get.states');
+    Route::get('/get-cities/{state_id}', [CustomerRegisterController::class, 'getCities'])->name('get.cities');
 
-// Cart Routes
-Route::prefix('cart')->name('cart.')->group(function () {
-    Route::get('/', [CartController::class, 'index'])->name('index');
-    Route::post('/add', [CartController::class, 'add'])->name('add');
-    Route::post('/update', [CartController::class, 'update'])->name('update');
-    Route::post('/remove', [CartController::class, 'remove'])->name('remove');
-    Route::get('/count', [CartController::class, 'count'])->name('count');
-});
+    // Cart Routes
+    Route::prefix('cart')->name('cart.')->group(function () {
+        Route::get('/', [CartController::class, 'index'])->name('index');
+        Route::post('/add', [CartController::class, 'add'])->name('add');
+        Route::post('/update', [CartController::class, 'update'])->name('update');
+        Route::post('/remove', [CartController::class, 'remove'])->name('remove');
+        Route::get('/count', [CartController::class, 'count'])->name('count');
+    });
 
-// Checkout Routes
-Route::prefix('checkout')->name('checkout.')->middleware('auth:customer')->group(function () {
-    Route::get('/', [CheckoutController::class, 'index'])->name('index');
-    Route::post('/process', [CheckoutController::class, 'process'])->name('process');
-    Route::get('/success/{id}', [CheckoutController::class, 'success'])->name('success');
-});
+    // Checkout Routes
+    Route::prefix('checkout')->name('checkout.')->middleware('auth:customer')->group(function () {
+        Route::get('/', [CheckoutController::class, 'index'])->name('index');
+        Route::post('/process', [CheckoutController::class, 'process'])->name('process');
+        Route::get('/success/{id}', [CheckoutController::class, 'success'])->name('success');
+    });
 
-// B2B Bulk Quick Order & CSV Upload Routes
-Route::prefix('quick-order')->name('shop.quick-order.')->group(function () {
-    Route::get('/', [QuickOrderController::class, 'index'])->name('index');
-    Route::get('/search', [QuickOrderController::class, 'search'])->name('search');
-    Route::get('/calculate-price', [QuickOrderController::class, 'calculatePrice'])->name('calculatePrice');
-    Route::post('/upload-csv', [QuickOrderController::class, 'uploadCsv'])->name('uploadCsv');
-    Route::get('/download-template', [QuickOrderController::class, 'downloadTemplate'])->name('downloadTemplate');
-    Route::post('/add-bulk', [QuickOrderController::class, 'addBulk'])->name('addBulk');
-});
+    // B2B Bulk Quick Order & CSV Upload Routes
+    Route::prefix('quick-order')->name('shop.quick-order.')->group(function () {
+        Route::get('/', [QuickOrderController::class, 'index'])->name('index');
+        Route::get('/search', [QuickOrderController::class, 'search'])->name('search');
+        Route::get('/calculate-price', [QuickOrderController::class, 'calculatePrice'])->name('calculatePrice');
+        Route::post('/upload-csv', [QuickOrderController::class, 'uploadCsv'])->name('uploadCsv');
+        Route::get('/download-template', [QuickOrderController::class, 'downloadTemplate'])->name('downloadTemplate');
+        Route::post('/add-bulk', [QuickOrderController::class, 'addBulk'])->name('addBulk');
+    });
 
-// Customer Order History
-Route::middleware('auth:customer')->prefix('my-orders')->name('customer.orders.')->group(function () {
-    Route::get('/', [ShopController::class, 'orders'])->name('index');
-    Route::get('/{id}', [ShopController::class, 'orderDetails'])->name('show');
-    Route::get('/{id}/download-invoice', [ShopController::class, 'downloadInvoice'])->name('downloadInvoice');
+    // Customer Order History
+    Route::middleware('auth:customer')->prefix('my-orders')->name('customer.orders.')->group(function () {
+        Route::get('/', [ShopController::class, 'orders'])->name('index');
+        Route::get('/{id}', [ShopController::class, 'orderDetails'])->name('show');
+        Route::get('/{id}/download-invoice', [ShopController::class, 'downloadInvoice'])->name('downloadInvoice');
+    });
 });

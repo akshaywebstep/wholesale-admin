@@ -288,7 +288,7 @@
                         <!-- Photo -->
                         <td class="py-3.5 px-4">
                             <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center p-1">
-                                <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain" onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                                <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}" class="max-w-full max-h-full object-contain" onerror="this.style.display='none';">
                             </div>
                         </td>
 
@@ -429,7 +429,7 @@
                 <div class="relative w-full h-48 rounded-xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center p-3 mb-3">
                     <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}"
                         class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                        onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                        onerror="this.style.display='none';">
 
                     <span class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-white/95 backdrop-blur-sm text-slate-700 border border-slate-200 shadow-xs">
                         {{ $product->category->name ?? 'General' }}
@@ -660,8 +660,7 @@ function openVariantModal(buttonEl) {
         document.getElementById('modalProductSku').textContent = 'SKU: ' + data.sku;
         document.getElementById('modalProductImg').src = data.image;
         document.getElementById('modalProductImg').onerror = function() {
-            this.onerror = null;
-            this.src = '{{ asset("images/product1.png") }}';
+            this.style.display = 'none';
         };
 
         document.getElementById('modalVariantsCount').textContent = data.variants.length + ' variants';

@@ -49,9 +49,11 @@
                         @endphp
                         <tr data-cart-id="{{ $item->id }}">
                             <td class="cart-table__product">
-                                <img src="{{ $item->product ? $item->product->featured_image_url : asset('images/product1.png') }}"
+                                @if($item->product && $item->product->featured_image_url)
+                                <img src="{{ $item->product->featured_image_url }}"
                                     alt="{{ $item->product->name ?? '' }}" width="64" height="64"
-                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                                    onerror="this.style.display='none';" />
+                                @endif
                                 <span>{{ $item->product->name ?? 'Product unavailable' }}</span>
                             </td>
                             <td>{{ $item->product->sku ?? '-' }}</td>

@@ -27,7 +27,7 @@
                     <img id="main-product-image" src="{{ $product->featured_image_url }}"
                         alt="{{ $product->name }}"
                         style="width: 100%; max-height: 440px; object-fit: contain; filter: drop-shadow(0 14px 28px rgba(11,34,18,0.15));"
-                        onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                        onerror="this.style.display='none';" />
                 </div>
 
                 @if($product->images && $product->images->count() > 1)

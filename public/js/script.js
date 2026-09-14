@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         html += `
                             <a href="${item.url}" class="search-dropdown__item">
                                 <div class="search-dropdown__thumb">
-                                    <img src="${item.image_url}" alt="${escapeHtml(item.name)}" onerror="this.src='/images/product1.png';" />
+                                    <img src="${item.image_url}" alt="${escapeHtml(item.name)}" onerror="this.style.display='none';" />
                                 </div>
                                 <div class="search-dropdown__info">
                                     <div class="search-dropdown__name">${highlightMatch(item.name, query)}</div>

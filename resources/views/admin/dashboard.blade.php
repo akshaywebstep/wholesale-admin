@@ -385,7 +385,7 @@
                         <div class="flex items-center gap-3 min-w-0">
                             <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}"
                                 class="w-11 h-11 rounded-lg object-contain bg-slate-50 p-1 border border-slate-200 shrink-0"
-                                onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                                onerror="this.style.display='none';">
                             <div class="min-w-0">
                                 <a href="{{ route('admin.products.show', $product) }}"
                                     class="text-xs font-bold text-slate-900 hover:text-blue-600 truncate block">
@@ -452,7 +452,7 @@
                     <div class="flex items-center gap-3 min-w-0">
                         <img src="{{ $product->featured_image_url }}" alt="{{ $product->name }}"
                             class="w-12 h-12 rounded-xl object-contain bg-slate-50 p-1 border border-slate-200 shrink-0"
-                            onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                            onerror="this.style.display='none';">
                         <div class="min-w-0">
                             <a href="{{ route('admin.products.show', $product) }}"
                                 class="text-xs font-bold text-slate-900 hover:text-blue-600 truncate block">

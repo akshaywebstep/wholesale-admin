@@ -152,9 +152,12 @@
                         btn.innerText = originalText;
                         console.error('Quick view error:', err);
                     });
-            });
         });
+    });
     </script>
+
+    <!-- Age Verification Warning Box Modal -->
+    @include('frontend.partials.age-verification-modal')
 
     @stack('scripts')
 </body>

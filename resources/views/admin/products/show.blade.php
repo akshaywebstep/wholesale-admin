@@ -69,7 +69,7 @@
 
                     <img id="mainDisplayPhoto" src="{{ $product->featured_image_url }}" alt="{{ $product->name }}"
                         class="max-w-full max-h-full object-contain transition-all duration-200"
-                        onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                        onerror="this.style.display='none';">
                 </div>
 
                 <!-- Thumbnail Selector Strip -->

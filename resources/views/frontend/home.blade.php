@@ -162,8 +162,8 @@
             @forelse($categories as $category)
             <a class="cat @if($loop->first) cat--featured @endif" href="{{ route('shop.category', $category->id) }}">
                 <span class="cat__icon" aria-hidden="true" style="overflow: hidden; padding: 2px;">
-                    @if($category->image_url && !str_contains($category->image_url, 'product1.png'))
-                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                    @if($category->image_url)
+                        <img src="{{ $category->image_url }}" alt="{{ $category->name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;" onerror="this.style.display='none';">
                     @else
                         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -226,15 +226,15 @@
                                 <img src="{{ asset('storage/' . $img->image_path) }}"
                                     alt="{{ $product->name }}" width="800" height="800" loading="lazy"
                                     style="width:100%; height:100%; object-fit:contain;"
-                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                                    onerror="this.style.display='none';" />
                             </div>
                             @endforeach
                         </div>
-                        @else
+                        @elseif($product->featured_image_url)
                         <img src="{{ $product->featured_image_url }}"
                             alt="{{ $product->name }}" width="800" height="800" loading="lazy"
                             style="width:100%; height:100%; object-fit:contain;"
-                            onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                            onerror="this.style.display='none';" />
                         @endif
                     </a>
 
@@ -375,7 +375,7 @@
                             <a href="{{ route('shop.product', $sol['product']->id) }}" class="starter-card__img-link">
                                 <img src="{{ $sol['product']->featured_image_url }}"
                                     alt="{{ $sol['product']->name }}" class="starter-card__main-img" loading="lazy"
-                                    onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';" />
+                                    onerror="this.style.display='none';" />
                             </a>
                         </div>
                         <div class="starter-card__content">

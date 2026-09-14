@@ -132,11 +132,12 @@
                             @endphp 
                             <tr style="border-bottom: 1px solid #f1f5f9;">
                                 <td style="padding: 16px 20px;">
-                                    <div style="display: flex; align-items: center; gap: 14px;">
-                                        <img src="{{ $product ? $product->featured_image_url : asset('images/product1.png') }}" 
+                                        @if($product && $product->featured_image_url)
+                                        <img src="{{ $product->featured_image_url }}" 
                                              alt="" 
                                              style="width: 52px; height: 52px; object-fit: contain; border-radius: 8px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 4px;" 
-                                             onerror="this.onerror=null;this.src='{{ asset('images/product1.png') }}';">
+                                             onerror="this.style.display='none';">
+                                        @endif
                                         <div>
                                             <a href="{{ $product ? route('shop.product', $product->id) : '#' }}" style="font-weight: 700; color: #0f172a; text-decoration: none; font-size: 13.5px; display: block;">
                                                 {{ $product->name ?? 'Product Unavailable' }}
