@@ -53,7 +53,11 @@ class CategoryController extends Controller
         $validated['slug'] = $this->generateUniqueSlug($validated['name']);
 
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $path = $request->file('image')->store('categories', 'public');
+            $publicTarget = public_path('storage/' . $path);
+            \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($publicTarget));
+            @copy(storage_path('app/public/' . $path), $publicTarget);
+            $validated['image'] = $path;
         }
 
         Category::create($validated);
@@ -87,8 +91,16 @@ class CategoryController extends Controller
         if ($request->hasFile('image')) {
             if ($category->image) {
                 \Storage::disk('public')->delete($category->image);
+                $oldPublic = public_path('storage/' . $category->image);
+                if (\Illuminate\Support\Facades\File::exists($oldPublic)) {
+                    \Illuminate\Support\Facades\File::delete($oldPublic);
+                }
             }
-            $validated['image'] = $request->file('image')->store('categories', 'public');
+            $path = $request->file('image')->store('categories', 'public');
+            $publicTarget = public_path('storage/' . $path);
+            \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($publicTarget));
+            @copy(storage_path('app/public/' . $path), $publicTarget);
+            $validated['image'] = $path;
         }
 
         $category->update($validated);
@@ -104,6 +116,10 @@ class CategoryController extends Controller
 
         if ($category->image) {
             \Storage::disk('public')->delete($category->image);
+            $oldPublic = public_path('storage/' . $category->image);
+            if (\Illuminate\Support\Facades\File::exists($oldPublic)) {
+                \Illuminate\Support\Facades\File::delete($oldPublic);
+            }
         }
 
         $category->delete();

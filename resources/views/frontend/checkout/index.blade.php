@@ -116,6 +116,9 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 8px 0; font-size: 14px;">
                             <div>
                                 <strong>{{ $item->product->name }}</strong>
+                                @if($item->variant)
+                                <div style="font-size: 11px; color: #15803d; font-weight: 600;">Variant: {{ $item->variant->size ?: $item->variant->color }}</div>
+                                @endif
                                 <div style="font-size: 12px; color: #777;">Qty: {{ $item->quantity }}</div>
                             </div>
                             <div>

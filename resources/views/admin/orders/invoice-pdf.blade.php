@@ -32,8 +32,8 @@
         <tr>
             <td style="vertical-align: middle;">
                 <div class="brand-title">CAROLINA PRIME DISTRIBUTORS</div>
-                <div class="brand-sub">Wholesale Distribution Central Hub &middot; Garner, NC</div>
-                <div class="brand-sub">Phone: (478) 444-5385 &middot; Web: carolinaprimedistributors.com</div>
+                <div class="brand-sub">Wholesale Distribution Central Hub &middot; Roanoke Rapids, NC</div>
+                <div class="brand-sub">Phone: (252) 507-4563 &middot; Web: carolinaprimedistributors.com</div>
             </td>
             <td style="vertical-align: middle; text-align: right;">
                 <div class="invoice-title">TAX INVOICE</div>
@@ -55,9 +55,9 @@
             <td class="address-box">
                 <div class="box-title">DISPATCH HUB</div>
                 <div>
-                    <strong>Garner Central Distribution Hub</strong><br>
+                    <strong>Roanoke Rapids Central Distribution Hub</strong><br>
                     Carolina Prime Logistics Division<br>
-                    Garner, North Carolina &middot; USA
+                    1620 East 10th Street, Roanoke Rapids, NC 27870 &middot; USA
                 </div>
             </td>
 

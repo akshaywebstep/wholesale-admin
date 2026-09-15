@@ -8,9 +8,12 @@
             A licensed wholesale distributor serving convenience stores, smoke shops and grocers
             across the Carolinas with next-day delivery and no order minimums.
           </p>
-          <ul class="footer__contact">
-            <li>Mon&ndash;Sat, 8:00am &ndash; 7:00pm</li>
-            <li>Garner, North Carolina</li>
+          <ul class="footer__contact" style="list-style: none; padding: 0; margin-top: 14px; font-size: 13px; color: #94a3b8; line-height: 1.8;">
+            <li><strong style="color: #ffffff;">Address:</strong> 1620 East 10th Street, Roanoke Rapids, NC 27870</li>
+            <li><strong style="color: #ffffff;">Call Us:</strong> <a href="tel:2525074563" style="color: inherit; text-decoration: none;">(252) 507-4563</a></li>
+            <li><strong style="color: #ffffff;">WhatsApp:</strong> <a href="https://wa.me/12522033927" target="_blank" style="color: #4ade80; text-decoration: none;">+1 (252) 203-3927</a></li>
+            <li><strong style="color: #ffffff;">Serving:</strong> NC &amp; Virginia (Free Next-Day Delivery)</li>
+            <li><strong style="color: #ffffff;">Hours:</strong> Mon&ndash;Sat, 8:00am &ndash; 7:00pm</li>
           </ul>
         </div>
         <nav class="footer__col" aria-label="Shop">

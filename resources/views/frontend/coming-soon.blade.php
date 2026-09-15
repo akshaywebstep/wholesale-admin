@@ -533,7 +533,7 @@
     </main>
 
     <footer>
-        <p>&copy; {{ date('Y') }} Carolina Prime Distributors Inc. All Rights Reserved. &bull; <a href="tel:4784445385">Direct Phone: (478) 444-5385</a></p>
+        <p>&copy; {{ date('Y') }} Carolina Prime Distributors Inc. All Rights Reserved. &bull; <a href="tel:2525074563">Direct Phone: (252) 507-4563</a> &bull; 1620 East 10th St, Roanoke Rapids, NC</p>
     </footer>
 
     <!-- =========================================

@@ -25,7 +25,7 @@
                     Wholesale Order #{{ $order->order_number ?? $order->id }}
                 </h1>
                 <p style="color: #64748b; font-size: 13px; margin: 3px 0 0 0;">
-                    Placed on <strong>{{ $order->created_at->format('d F Y \a\t h:i A') }}</strong> &middot; Dispatched via Garner, NC Hub
+                    Placed on <strong>{{ $order->created_at->format('d F Y \a\t h:i A') }}</strong> &middot; Dispatched via Roanoke Rapids, NC Hub
                 </p>
             </div>
 
@@ -175,7 +175,7 @@
                             <circle cx="5.5" cy="18.5" r="2.5" />
                             <circle cx="18.5" cy="18.5" r="2.5" />
                         </svg>
-                        Origin Warehouse: <strong style="color: #0f172a;">Garner Central Distribution Hub (NC)</strong>
+                        Origin Warehouse: <strong style="color: #0f172a;">Roanoke Rapids Distribution Hub (NC)</strong>
                     </span>
                     <span style="color: #16a34a; font-weight: 700;">● Insured Freight Transit</span>
                 </div>
@@ -249,8 +249,8 @@
                     <p style="font-size: 12px; color: #78350f; margin: 0 0 10px 0; line-height: 1.4;">
                         Contact our central distributor dispatch team for route delivery tracking or invoice updates.
                     </p>
-                    <a href="tel:4784445385" style="color: #0b2212; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                        📞 (478) 444-5385 &middot; Garner, NC Hub
+                    <a href="tel:2525074563" style="color: #0b2212; font-weight: 800; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        📞 (252) 507-4563 &middot; Roanoke Rapids, NC Hub
                     </a>
                 </div>
 

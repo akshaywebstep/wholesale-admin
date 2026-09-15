@@ -65,7 +65,7 @@
                 <div style="font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800; color: #b45309; margin-top: 4px;">
                     {{ number_format($pendingOrdersCount) }}
                 </div>
-                <div style="font-size: 11.5px; color: #b45309; font-weight: 600; margin-top: 2px;">Garner Hub Fulfillment</div>
+                <div style="font-size: 11.5px; color: #b45309; font-weight: 600; margin-top: 2px;">Roanoke Rapids Hub Fulfillment</div>
             </div>
 
             <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">

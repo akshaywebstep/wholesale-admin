@@ -54,9 +54,16 @@
                                     alt="{{ $item->product->name ?? '' }}" width="64" height="64"
                                     onerror="this.style.display='none';" />
                                 @endif
-                                <span>{{ $item->product->name ?? 'Product unavailable' }}</span>
+                                <div>
+                                    <span style="font-weight: 600; color: #0b2212;">{{ $item->product->name ?? 'Product unavailable' }}</span>
+                                    @if($item->variant)
+                                    <div style="font-size: 12px; color: #15803d; font-weight: 600; margin-top: 2px;">
+                                        Variant: {{ $item->variant->size ?: $item->variant->color }}
+                                    </div>
+                                    @endif
+                                </div>
                             </td>
-                            <td>{{ $item->product->sku ?? '-' }}</td>
+                            <td>{{ $item->variant->variant_sku ?? ($item->product->sku ?? '-') }}</td>
                             <td class="cart-item-price">${{ number_format($price, 2) }}</td>
                             <td>
                                 <div class="qty-stepper">

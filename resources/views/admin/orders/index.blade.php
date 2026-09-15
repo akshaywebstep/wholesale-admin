@@ -116,7 +116,7 @@
                                 #{{ $order->order_number ?? $order->id }}
                             </a>
                             <div class="text-[11px] text-slate-400 mt-0.5">
-                                Origin: {{ $order->warehouse->name ?? 'Garner Hub' }}
+                                Origin: {{ $order->warehouse->name ?? 'Roanoke Rapids Hub' }}
                             </div>
                         </td>
                         <td class="py-4 px-5">

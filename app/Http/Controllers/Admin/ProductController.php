@@ -17,6 +17,20 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    private function saveAndSyncImage($file, string $folder = 'products'): string
+    {
+        $path = $file->store($folder, 'public');
+        $storageSource = storage_path('app/public/' . $path);
+        $publicTarget = public_path('storage/' . $path);
+
+        \Illuminate\Support\Facades\File::ensureDirectoryExists(dirname($publicTarget));
+        if (\Illuminate\Support\Facades\File::exists($storageSource)) {
+            \Illuminate\Support\Facades\File::copy($storageSource, $publicTarget);
+        }
+
+        return $path;
+    }
+
     private function getDefaultWarehouseId(): int
     {
         $warehouse = Warehouse::where('status', 'ACTIVE')->first() ?? Warehouse::first();
@@ -250,9 +264,11 @@ class ProductController extends Controller
             // ---- Images Upload ----
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $imageFile) {
-                    if ($imageFile->isValid()) {
-                        $path = $imageFile->store('products', 'public');
-                        $product->images()->create(['image_path' => $path]);
+                    if ($imageFile && $imageFile->isValid()) {
+                        $path = $this->saveAndSyncImage($imageFile, 'products');
+                        $product->images()->create([
+                            'image_path' => $path,
+                        ]);
                     }
                 }
             }
@@ -324,7 +340,11 @@ class ProductController extends Controller
             'priceTiers',
         ]);
 
-        return view('admin.products.edit', compact('product', 'categories', 'units'));
+        return response()
+            ->view('admin.products.edit', compact('product', 'categories', 'units'))
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function update(Request $request, Product $product)
@@ -343,7 +363,16 @@ class ProductController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['sku'] = strtoupper(trim($validated['sku']));
 
-        $product->update($validated);
+        $product->update([
+            'name'        => $validated['name'],
+            'sku'         => $validated['sku'],
+            'category_id' => $validated['category_id'],
+            'unit_id'     => $validated['unit_id'],
+            'weight'      => $validated['weight'] ?? null,
+            'base_price'  => $validated['base_price'],
+            'description' => $validated['description'] ?? null,
+            'is_active'   => $validated['is_active'],
+        ]);
 
         return redirect()->route('admin.products.edit', $product)
             ->with('success', 'General product specifications updated.');
@@ -351,9 +380,13 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        // Delete related images from storage
+        // Delete related images from storage AND public/storage
         foreach ($product->images as $image) {
             Storage::disk('public')->delete($image->image_path);
+            $publicFile = public_path('storage/' . $image->image_path);
+            if (\Illuminate\Support\Facades\File::exists($publicFile)) {
+                \Illuminate\Support\Facades\File::delete($publicFile);
+            }
         }
 
         $product->delete();
@@ -370,49 +403,51 @@ class ProductController extends Controller
     {
         $request->validate([
             'images'   => 'required|array',
-            'images.*' => 'required|file|mimes:jpeg,png,jpg,webp,avif|max:3072',
+            'images.*' => 'required|file|mimes:jpeg,png,jpg,webp,avif|max:5120',
         ]);
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $file) {
-                if ($file->isValid()) {
-                    $path = $file->store('products', 'public');
-                    $product->images()->create(['image_path' => $path]);
+                if ($file && $file->isValid()) {
+                    $path = $this->saveAndSyncImage($file, 'products');
+                    $product->images()->create([
+                        'image_path' => $path,
+                    ]);
                 }
             }
         }
 
-        return back()->with('success', 'Images uploaded successfully.');
+        return redirect()->route('admin.products.edit', $product)
+            ->with('success', 'Images uploaded successfully.');
     }
 
     public function destroyImage(Request $request, ...$args)
     {
+        // When route is products/{product}/images/{image}, $args has [$product, $image].
+        // When route is product-images/{image}, $args has [$image].
+        // In both cases, the target image is ALWAYS the last argument!
+        $imageArg = end($args);
+        
         $image = null;
-        $productId = null;
-
-        foreach ($args as $arg) {
-            if ($arg instanceof ProductImage) {
-                $image = $arg;
-            } elseif ($arg instanceof Product) {
-                $productId = $arg->id;
-            }
-        }
-
-        if (!$image) {
-            foreach ($args as $arg) {
-                if (is_numeric($arg) && ($found = ProductImage::find($arg))) {
-                    $image = $found;
-                    break;
-                }
-            }
+        if ($imageArg instanceof ProductImage) {
+            $image = $imageArg;
+        } elseif (is_numeric($imageArg)) {
+            $image = ProductImage::find($imageArg);
         }
 
         if (!$image) {
             return back()->with('error', 'Image not found.');
         }
 
-        $productId = $productId ?: $image->product_id;
+        $productId = $image->product_id;
+
+        // Delete from BOTH storage/app/public and public/storage
         Storage::disk('public')->delete($image->image_path);
+        $publicFile = public_path('storage/' . $image->image_path);
+        if (\Illuminate\Support\Facades\File::exists($publicFile)) {
+            \Illuminate\Support\Facades\File::delete($publicFile);
+        }
+
         $image->delete();
 
         return redirect()->route('admin.products.edit', $productId)
@@ -449,31 +484,20 @@ class ProductController extends Controller
 
     public function destroyVariant(Request $request, ...$args)
     {
+        $variantArg = end($args);
         $variant = null;
-        $productId = null;
 
-        foreach ($args as $arg) {
-            if ($arg instanceof ProductVariant) {
-                $variant = $arg;
-            } elseif ($arg instanceof Product) {
-                $productId = $arg->id;
-            }
-        }
-
-        if (!$variant) {
-            foreach ($args as $arg) {
-                if (is_numeric($arg) && ($found = ProductVariant::find($arg))) {
-                    $variant = $found;
-                    break;
-                }
-            }
+        if ($variantArg instanceof ProductVariant) {
+            $variant = $variantArg;
+        } elseif (is_numeric($variantArg)) {
+            $variant = ProductVariant::find($variantArg);
         }
 
         if (!$variant) {
             return back()->with('error', 'Variant not found.');
         }
 
-        $productId = $productId ?: $variant->product_id;
+        $productId = $variant->product_id;
         $variant->delete();
 
         return redirect()->route('admin.products.edit', $productId)
@@ -526,36 +550,26 @@ class ProductController extends Controller
         $validated['product_id'] = $product->id;
         ProductPriceTier::create($validated);
 
-        return back()->with('success', 'Wholesale volume price tier added.');
+        return redirect()->route('admin.products.edit', $product)
+            ->with('success', 'Wholesale volume price tier added.');
     }
 
     public function destroyPriceTier(Request $request, ...$args)
     {
+        $tierArg = end($args);
         $priceTier = null;
-        $productId = null;
 
-        foreach ($args as $arg) {
-            if ($arg instanceof ProductPriceTier) {
-                $priceTier = $arg;
-            } elseif ($arg instanceof Product) {
-                $productId = $arg->id;
-            }
-        }
-
-        if (!$priceTier) {
-            foreach ($args as $arg) {
-                if (is_numeric($arg) && ($found = ProductPriceTier::find($arg))) {
-                    $priceTier = $found;
-                    break;
-                }
-            }
+        if ($tierArg instanceof ProductPriceTier) {
+            $priceTier = $tierArg;
+        } elseif (is_numeric($tierArg)) {
+            $priceTier = ProductPriceTier::find($tierArg);
         }
 
         if (!$priceTier) {
             return back()->with('error', 'Price tier not found.');
         }
 
-        $productId = $productId ?: $priceTier->product_id;
+        $productId = $priceTier->product_id;
         $priceTier->delete();
 
         return redirect()->route('admin.products.edit', $productId)

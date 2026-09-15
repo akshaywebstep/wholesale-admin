@@ -18,8 +18,10 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet" />
+    <link rel="preload" href="{{ asset('fonts/ProductSans-Regular.woff') }}" as="font" type="font/woff" crossorigin />
+    <link rel="preload" href="{{ asset('fonts/ProductSans-Bold.woff') }}" as="font" type="font/woff" crossorigin />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}?v={{ filemtime(public_path('css/styles.css')) }}" />
 </head>
 
 <body>

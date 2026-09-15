@@ -83,7 +83,7 @@ class EmailConfigSeeder extends Seeder
                                 &copy; {app_name}. All rights reserved.
                             </p>
                             <p style="font-size: 11px; color: #94a3b8; margin: 0;">
-                                Wholesale Buyer Support: (478) 444-5385 &bull; Carolina Prime Distributors
+                                Wholesale Buyer Support: (252) 507-4563 &bull; Carolina Prime Distributors
                             </p>
                         </td>
                     </tr>

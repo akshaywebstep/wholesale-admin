@@ -51,7 +51,7 @@
             </div>
 
             <div class="brand-footer">
-                <span>Direct Support: <strong>(478) 444-5385</strong></span>
+                <span>Direct Support: <strong>(252) 507-4563</strong></span>
                 <a href="{{ route('home') }}">&larr; Back to Public Storefront</a>
             </div>
         </div>

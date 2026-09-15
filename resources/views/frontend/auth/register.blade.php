@@ -63,7 +63,7 @@
             </div>
 
             <div class="brand-footer">
-                <span>Operations Desk: <strong>(478) 444-5385</strong></span>
+                <span>Operations Desk: <strong>(252) 507-4563</strong></span>
                 <a href="{{ route('home') }}">&larr; Return to Storefront</a>
             </div>
         </div>

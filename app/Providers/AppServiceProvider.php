@@ -42,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
         View::composer('frontend.partials.header', function ($view) {
             $navCategories = Category::whereNull('parent_id')
                 ->where('status', 'ACTIVE')
+                ->orderBy('name', 'asc')
+                ->with(['children' => function($q) {
+                    $q->where('status', 'ACTIVE')->orderBy('name', 'asc');
+                }])
                 ->get();
 
             $view->with('navCategories', $navCategories);

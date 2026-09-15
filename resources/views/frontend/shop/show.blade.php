@@ -54,7 +54,7 @@
                         Wholesale Distribution Specs
                     </h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px;">
-                        <div style="color: #64748b;">Dispatch Hub: <strong style="color: #0f172a; display: block;">Garner, NC Central</strong></div>
+                        <div style="color: #64748b;">Dispatch Hub: <strong style="color: #0f172a; display: block;">Roanoke Rapids, NC Hub</strong></div>
                         <div style="color: #64748b;">Route Delivery: <strong style="color: #16a34a; display: block;">Next-Day Drop-off</strong></div>
                         <div style="color: #64748b;">Packaging: <strong style="color: #0f172a; display: block;">{{ $product->unit->name ?? 'Standard Case' }}</strong></div>
                         <div style="color: #64748b;">Weight: <strong style="color: #0f172a; display: block;">{{ $product->formatted_weight ?? 'Standard' }}</strong></div>

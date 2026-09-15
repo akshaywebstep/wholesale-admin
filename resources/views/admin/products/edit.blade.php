@@ -250,6 +250,7 @@
                             Main
                         </span>
                         @endif
+
                         <!-- Delete Form -->
                         <form action="{{ route('admin.products.images.destroy', [$product, $img]) }}" method="POST"
                             class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -274,22 +275,25 @@
                 <!-- Upload New Images Form -->
                 <form action="{{ route('admin.products.images.store', $product) }}" method="POST" enctype="multipart/form-data" class="space-y-4 pt-2">
                     @csrf
-                    <div class="border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50/60 hover:bg-blue-50/30 rounded-2xl p-5 text-center transition-all cursor-pointer relative group">
-                        <input type="file" name="images[]" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                    <div class="border-2 border-dashed border-slate-200 hover:border-purple-400 bg-slate-50/60 hover:bg-purple-50/30 rounded-2xl p-5 text-center transition-all cursor-pointer relative group">
+                        <input type="file" name="images[]" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateGalleryUploadLabel(this)">
                         <div class="flex flex-col items-center justify-center space-y-1.5 pointer-events-none">
-                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </div>
                             <div>
-                                <p class="text-xs font-bold text-slate-800">Select new photos to upload</p>
-                                <p class="text-[11px] text-slate-400">JPG, PNG, WEBP up to 3MB each</p>
+                                <p id="galleryUploadLabel" class="text-xs font-bold text-slate-800">Select new photos to upload</p>
+                                <p class="text-[11px] text-slate-400">JPG, PNG, WEBP up to 5MB each</p>
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-end">
-                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow-sm">
+                        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                            </svg>
                             Upload Photos
                         </button>
                     </div>
@@ -687,5 +691,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+function updateGalleryUploadLabel(input) {
+    const label = document.getElementById('galleryUploadLabel');
+    if (label && input.files && input.files.length > 0) {
+        label.textContent = input.files.length + ' photo(s) selected to upload';
+    }
+}
 </script>
 @endsection

@@ -92,7 +92,7 @@
                 <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs {{ $statusIndex >= 2 ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400' }}">
                     {{ $statusIndex >= 2 ? '✓' : '3' }}
                 </div>
-                <span class="text-xs font-bold text-slate-800 mt-2">3. Dispatched (Garner Hub)</span>
+                <span class="text-xs font-bold text-slate-800 mt-2">3. Dispatched (Roanoke Rapids Hub)</span>
                 <span class="text-[10px] text-slate-400">Route Freight</span>
             </div>
             <div class="h-0.5 flex-1 {{ $statusIndex >= 3 ? 'bg-indigo-600' : 'bg-slate-200' }} -mt-6"></div>
